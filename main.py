@@ -78,24 +78,48 @@ class DataHandler():
         except Exception as erreur:
             messagebox.showerror("Erreur", str(erreur))
 
+class GraphMaker(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+        # Création de la figure
+        self.figure = Figure(figsize=(7, 4))
+        # Création des axes du graphique
+        self.ax = self.figure.add_subplot(111)
+         # Intégration du graphique dans CustomTkinter
+        self.canvas = FigureCanvasTkAgg(self.figure, master=self)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+
+
+    def create_graph(self, x, y, titre, label_y):
+        # Effacer l'ancien graphique
+        self.ax.clear()
+        # Tracer la nouvelle courbe
+        self.ax.plot(x, y, marker="o")
+        # Personnaliser
+        self.ax.set_title(titre)
+        self.ax.set_xlabel("Année")
+        self.ax.set_ylabel(label_y)
+        self.ax.grid(True)
+        # Ajuster l'espacement
+        self.figure.tight_layout()
+        # Actualiser le graphique
+        self.canvas.draw_idle()
+
 class MainApplication(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Accidents routiers Montreal")
         self.config(bg="white")
         self.geometry("1240x768")
-
         self.handler = DataHandler()
+        self.graph = GraphMaker(self)
+        self.graph.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.7, relheight=0.6)
 
         """
         self.df = pd.read_csv("collisions_routieres.csv")
         self.df_filtre = self.df.copy()
         self.df_resultats = pd.DataFrame()
         """
-
-        self.button = ctk.CTkButton(self, command=self.on_button_pressed, text="Click me!", bg_color="white")
-        self.button.place(relx=0.5, rely=0.5, anchor="center")
-
         self.create_menu()
 
     def create_menu(self):
@@ -108,9 +132,6 @@ class MainApplication(ctk.CTk):
         menu.add_cascade(label="Fichier", menu=file_menu)
         file_menu.add_command(label="Sauvegarder", command=self.handler.sauvegarder_csv)
         file_menu.add_command(label="Charger", command=self.handler.charger_csv)
-        
-    def on_button_pressed(self):
-        self.button.configure(text="Clicked!")
 
 if __name__ == "__main__":
     ctk.set_appearance_mode("system")
