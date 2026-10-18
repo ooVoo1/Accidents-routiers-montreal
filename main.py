@@ -2,6 +2,9 @@ import customtkinter as ctk
 import tkinter as tk
 import pandas as pd
 
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 def importer_csv(chemin):
     df = pd.read_csv(chemin)
     return df
