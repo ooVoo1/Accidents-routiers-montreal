@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import tkinter as tk
+from tkinter import filedialog, messagebox
 import pandas as pd
 
 from matplotlib.figure import Figure
@@ -22,7 +23,15 @@ class MainApplication(ctk.CTk):
 
     def on_button_pressed(self):
         self.button.configure(text="Clicked!")
-
+    
+    def charger_donnees(self):
+        chemin = filedialog.askopenfilename(filetypes=[("Fichiers CSV", "*.csv")])
+        if chemin:
+            try:
+                self.df = importer_csv(chemin)
+                print("Données chargées!")
+            except Exception as erreur:
+                messagebox.showerror("Erreur", str(erreur))
 if __name__ == "__main__":
     ctk.set_appearance_mode("system")
     ctk.set_default_color_theme("blue")
