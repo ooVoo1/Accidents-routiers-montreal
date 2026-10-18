@@ -17,6 +17,8 @@ class MainApplication(ctk.CTk):
         self.config(bg="white")
         self.geometry("1240x768")
         self.df = importer_csv("collisions_routieres.csv")
+        self.df_filtre = self.df.copy()
+        self.df_resultats = pd.DataFrame()
 
         self.button = ctk.CTkButton(self, command=self.on_button_pressed, text="Click me!", bg_color="white")
         self.button.place(relx=0.5, rely=0.5, anchor="center")
