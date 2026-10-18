@@ -90,7 +90,7 @@ class GraphMaker(ctk.CTkFrame):
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
     def create_graph(self, x, y, titre, label_y):
-        # Effacer l'ancien graphique
+        # Effacer ancien graphique
         self.ax.clear()
         # Tracer la nouvelle courbe
         self.ax.plot(x, y, marker="o")
@@ -99,9 +99,9 @@ class GraphMaker(ctk.CTkFrame):
         self.ax.set_xlabel("Année")
         self.ax.set_ylabel(label_y)
         self.ax.grid(True)
-        # Ajuster l'espacement
+        # Ajuster espacement
         self.figure.tight_layout()
-        # Actualiser le graphique
+        # Actualiser graphique
         self.canvas.draw_idle()
 
 class MainApplication(ctk.CTk):
@@ -112,7 +112,7 @@ class MainApplication(ctk.CTk):
         self.geometry("1240x768")
         self.handler = DataHandler()
         self.graph = GraphMaker(self)
-        self.graph.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.7, relheight=0.6)
+        self.graph.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.9, relheight=0.7)
 
         """
         self.df = pd.read_csv("collisions_routieres.csv")
