@@ -89,7 +89,6 @@ class GraphMaker(ctk.CTkFrame):
         self.canvas = FigureCanvasTkAgg(self.figure, master=self)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
-
     def create_graph(self, x, y, titre, label_y):
         # Effacer l'ancien graphique
         self.ax.clear()
@@ -121,7 +120,27 @@ class MainApplication(ctk.CTk):
         self.df_resultats = pd.DataFrame()
         """
         self.create_menu()
+    def update_graph(self, choix):
+        #Si les données ne sont pas chargées, arrêter l'éxecution
+        if self.handler.df.empty:
+            return
+        #Dico d'équivalence pour les noms de colonnes du DataFrame
+        colonnes = {"Nombre de morts": "NB_MORTS","Nombre de blessés graves": "NB_BLESSES_GRAVES",
+        "Nombre de blessés légers": "NB_BLESSES_LEGERS","Nombre total de victimes": "NB_VICTIMES_TOTAL",
+        "Nombre de victimes piétons": "NB_VICTIMES_PIETON","Nombre de victimes moto": "NB_VICTIMES_MOTO",
+        "Nombre de victimes vélo": "NB_VICTIMES_VELO"}
 
+        # Créer serie avec les données souhaitée pour le graphique
+        if choix == "Nombre de collisions":
+            resultats = self.handler.df.groupby("AN").size()
+        else:
+            colonne = colonnes[choix]
+            resultats = self.handler.df.groupby("AN")[colonne].sum()
+
+        # Garder les résultats pour en cas d'exportation
+        self.handler.df_resultats = resultats.reset_index(name=choix)
+        self.graph.create_graph(x=resultats.index, y=resultats.values, titre=choix + " par année", label_y=choix)
+        
     def create_menu(self):
         menu = tk.Menu(self)
         self.config(menu=menu)
