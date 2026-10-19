@@ -112,7 +112,7 @@ class MainApplication(ctk.CTk):
         self.geometry("1240x768")
         self.handler = DataHandler()
         self.graph = GraphMaker(self)
-        self.graph.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.9, relheight=0.7)
+        self.graph.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.75, relheight=0.7)
 
         """
         self.df = pd.read_csv("collisions_routieres.csv")
@@ -124,6 +124,7 @@ class MainApplication(ctk.CTk):
         #Si les données ne sont pas chargées, arrêter l'éxecution
         if self.handler.df.empty:
             return
+        print(f"L'utilisateur a cliqué sur : {choix}")
         #Dico d'équivalence pour les noms de colonnes du DataFrame
         colonnes = {"Nombre de morts": "NB_MORTS","Nombre de blessés graves": "NB_BLESSES_GRAVES",
         "Nombre de blessés légers": "NB_BLESSES_LEGERS","Nombre total de victimes": "NB_VICTIMES_TOTAL",
@@ -157,7 +158,7 @@ class MainApplication(ctk.CTk):
         #Liste d'options
         options = ["Nombre de collisions","Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
                    "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
-        menuDeroulantGraphique = tk.OptionMenu(self, selection, *options)
+        menuDeroulantGraphique = tk.OptionMenu(self, selection, *options, command=self.update_graph)
         menuDeroulantGraphique.place(relx=0.12, rely=0.2, anchor="center", relwidth=0.2, relheight=0.05)
         TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Choisir la donnée à visualiser graphiquement")
         TitreMenuDeroulantGraphique.place(relx=0.12, rely=0.15, anchor="center", relwidth=0.25, relheight=0.05)
