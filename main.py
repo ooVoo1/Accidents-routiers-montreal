@@ -85,7 +85,7 @@ class GraphMaker(ctk.CTkFrame):
         self.figure = Figure(figsize=(7, 4))
         # Création des axes du graphique
         self.ax = self.figure.add_subplot(111)
-         # Intégration du graphique dans CustomTkinter
+        # Intégration du graphique dans CustomTkinter
         self.canvas = FigureCanvasTkAgg(self.figure, master=self)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
@@ -151,16 +151,24 @@ class MainApplication(ctk.CTk):
         menu.add_cascade(label="Fichier", menu=file_menu)
         file_menu.add_command(label="Sauvegarder", command=self.handler.sauvegarder_csv)
         file_menu.add_command(label="Charger", command=self.handler.charger_csv)
+
         #Variable pour mettre choix de graphique
+
         selection = tk.StringVar()
         selection.set("Nombre de collisions")
+
         #Liste d'options
+
         options = ["Nombre de collisions","Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
                    "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
-        menuDeroulantGraphique = tk.OptionMenu(self, selection, *options)
+
+        menuDeroulantGraphique = ctk.CTkOptionMenu(self, values=options, bg_color="white")
+        menuDeroulantGraphique.set("Nombre de collisions")
         menuDeroulantGraphique.place(relx=0.12, rely=0.2, anchor="center", relwidth=0.2, relheight=0.05)
+
         TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Choisir la donnée à visualiser graphiquement")
         TitreMenuDeroulantGraphique.place(relx=0.12, rely=0.15, anchor="center", relwidth=0.25, relheight=0.05)
+
 if __name__ == "__main__":
     ctk.set_appearance_mode("system")
     ctk.set_default_color_theme("blue")
