@@ -154,6 +154,27 @@ class MainApplication(ctk.CTk):
         # Garder les résultats pour en cas d'exportation
         self.handler.df_resultats = resultats.reset_index(name=choix)
         self.graph.create_graph(x=resultats.index, y=resultats.values, titre=choix + " par année", label_y=choix)
+        #Récupération de données pour statsbox
+        total = resultats.sum()
+        annee_record = resultats.idxmax()
+        maximum = resultats.max()
+        noms_mois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+        #Récupérer mois de chaque accident
+        mois = pd.to_datetime(self.handler.df["DT_ACCDN"], errors="coerce").dt.month
+        #Classer les accidents par leur mois
+        if choix == "Nombre de collisions":
+            resultats_mois = self.handler.df.groupby(mois).size()
+        else:
+            resultats_mois = self.handler.df.groupby(mois)[colonne].sum()
+        #Assigner meilleur mois
+        numero_mois = int(resultats_mois.idxmax())
+        mois_record = noms_mois[numero_mois - 1]
+        #Créer texte pour statsbox
+        texte = (f"Total : {int(total)}\n\n"
+        f"Année record : {int(annee_record)}\n\n"
+        f"Maximum annuel : {int(maximum)}\n\n"
+        f"Mois record : {mois_record}")
+        self.texte_stats.configure(text=texte)
         
     def create_menu(self):
         menu = tk.Menu(self)
@@ -170,10 +191,21 @@ class MainApplication(ctk.CTk):
         #Liste d'options
         options = ["Nombre de collisions","Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
                    "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
+        #Création menu déroulant
         menuDeroulantGraphique = ctk.CTkOptionMenu(self, variable=self.selection, values = options, command = self.update_graph, font=("Arial", 13), corner_radius=8, height=36)
         menuDeroulantGraphique.place(relx=0.025, rely=0.09, anchor="nw", relwidth=0.2)
+        #Création label menu déroulant
         TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Statistique à afficher",font=("Arial", 16, "bold"), text_color= "black", fg_color= "transparent")
         TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.05, anchor="center")
+        #Création statsbox
+        self.stats_frame = ctk.CTkFrame(self, fg_color="white", border_width=1, border_color="#D9DEE5", corner_radius=12)
+        self.stats_frame.place(relx=0.025, rely=0.32, anchor="nw", relwidth=0.20, relheight=0.27)
+        #Création label statsbox
+        self.titre_stats = ctk.CTkLabel(self.stats_frame, text="Résumé statistique", font=("Arial", 16, "bold"), text_color="black")
+        self.titre_stats.pack(pady=(12, 8))
+        #Création texte pour stats
+        self.texte_stats = ctk.CTkLabel(self.stats_frame, text="Chargez un fichier CSV.", font=("Arial", 13), text_color="black", justify="left", anchor="w")
+        self.texte_stats.pack(fill="x", padx=12, pady=8)
 if __name__ == "__main__":
     ctk.set_appearance_mode("system")
     ctk.set_default_color_theme("blue")
