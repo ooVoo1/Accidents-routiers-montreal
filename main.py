@@ -2,17 +2,12 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import pandas as pd
+from matplotlib.ticker import AutoMinorLocator
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import os
-
-"""
-def importer_csv(chemin):
-    df = pd.read_csv(chemin)
-    return df
-"""
 
 class DataHandler():
     """Fait la gestion des fichiers et du DataFrame."""
@@ -24,7 +19,7 @@ class DataHandler():
     def charger_csv(self):
         """Charger les données."""
 
-        # Demander l'utilisateur à choisir un fichier CSV.
+        # Demander à l'utilisateur de choisir un fichier CSV.
 
         chemin = filedialog.askopenfilename(title="Charger fichier CSV", filetypes=[("Fichiers CSV", "*.csv")])
 
@@ -32,15 +27,18 @@ class DataHandler():
         # Assigner le chemin dans la variable 'chemin_courante'.
         # Lancer un erreur si quelque chose ne marche pas.
 
-        if chemin:
-            try:
-                self.df = pd.read_csv(chemin)
-                self.chemin_courante = chemin
+        if not chemin:
+            return False
 
-                print("Données chargées!")
-            except Exception as erreur: 
-                messagebox.showerror("Erreur", str(erreur))
+        try:
+            self.df = pd.read_csv(chemin)
+            self.chemin_courante = chemin
+            print("Données chargées!")
+            return True
 
+        except Exception as erreur: 
+            messagebox.showerror("Erreur", str(erreur))
+            return False
     def sauvegarder_csv(self):
         """Sauvegarder les données."""
 
@@ -95,24 +93,33 @@ class GraphMaker(ctk.CTkFrame):
         # Tracer la nouvelle courbe
         self.ax.plot(x, y, marker="o")
         # Personnaliser
+        self.ax.set_xticks(x)
         self.ax.set_title(titre)
         self.ax.set_xlabel("Année")
         self.ax.set_ylabel(label_y)
-        self.ax.grid(True)
+        # Ajouter quadrillage mineur
+        self.ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+        self.ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+
+        # Quadrillage majeur
+        self.ax.grid(which="major", linestyle="-", linewidth=0.8, alpha=0.5)
+
+        # Quadrillage mineur
+        self.ax.grid(which="minor", linestyle=":", linewidth=0.5, alpha=0.5)        
         # Ajuster espacement
         self.figure.tight_layout()
-        # Actualiser graphique
+        # Refaire graphique
         self.canvas.draw_idle()
 
 class MainApplication(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Accidents routiers Montreal")
-        self.config(bg="white")
+        self.configure(fg_color="white")
         self.geometry("1240x768")
         self.handler = DataHandler()
         self.graph = GraphMaker(self)
-        self.graph.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.9, relheight=0.7)
+        self.graph.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.75, relheight=0.7)
 
         """
         self.df = pd.read_csv("collisions_routieres.csv")
@@ -120,10 +127,17 @@ class MainApplication(ctk.CTk):
         self.df_resultats = pd.DataFrame()
         """
         self.create_menu()
+    def charger_et_actualiser(self):
+        if self.handler.charger_csv():
+            self.update_graph(self.selection.get())
+
+    
+
     def update_graph(self, choix):
         #Si les données ne sont pas chargées, arrêter l'éxecution
         if self.handler.df.empty:
             return
+        print(f"L'utilisateur a cliqué sur : {choix}")
         #Dico d'équivalence pour les noms de colonnes du DataFrame
         colonnes = {"Nombre de morts": "NB_MORTS","Nombre de blessés graves": "NB_BLESSES_GRAVES",
         "Nombre de blessés légers": "NB_BLESSES_LEGERS","Nombre total de victimes": "NB_VICTIMES_TOTAL",
@@ -150,25 +164,18 @@ class MainApplication(ctk.CTk):
         file_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="Fichier", menu=file_menu)
         file_menu.add_command(label="Sauvegarder", command=self.handler.sauvegarder_csv)
-        file_menu.add_command(label="Charger", command=self.handler.charger_csv)
-
+        file_menu.add_command(label="Charger", command=self.charger_et_actualiser)
         #Variable pour mettre choix de graphique
-
-        selection = tk.StringVar()
-        selection.set("Nombre de collisions")
-
+        self.selection = tk.StringVar(value="Nombre de collisions")
         #Liste d'options
 
         options = ["Nombre de collisions","Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
                    "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
-
-        menuDeroulantGraphique = ctk.CTkOptionMenu(self, values=options, bg_color="white")
-        menuDeroulantGraphique.set("Nombre de collisions")
-        menuDeroulantGraphique.place(relx=0.12, rely=0.2, anchor="center", relwidth=0.2, relheight=0.05)
-
-        TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Choisir la donnée à visualiser graphiquement")
-        TitreMenuDeroulantGraphique.place(relx=0.12, rely=0.15, anchor="center", relwidth=0.25, relheight=0.05)
-
+        menuDeroulantGraphique = ctk.CTkOptionMenu(self, variable=self.selection, values = options, command = self.update_graph, font=("Arial", 13), corner_radius=8, height=36)
+        menuDeroulantGraphique.place(relx=0.025, rely=0.09, anchor="nw", relwidth=0.2)
+        TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Statistique à afficher",font=("Arial", 16, "bold"), text_color= "black", fg_color= "transparent")
+        TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.05, anchor="center")
+        
 if __name__ == "__main__":
     ctk.set_appearance_mode("system")
     ctk.set_default_color_theme("blue")
