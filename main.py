@@ -32,15 +32,18 @@ class DataHandler():
         # Assigner le chemin dans la variable 'chemin_courante'.
         # Lancer un erreur si quelque chose ne marche pas.
 
-        if chemin:
-            try:
-                self.df = pd.read_csv(chemin)
-                self.chemin_courante = chemin
+        if not chemin:
+            return False
 
-                print("Données chargées!")
-            except Exception as erreur: 
-                messagebox.showerror("Erreur", str(erreur))
+        try:
+            self.df = pd.read_csv(chemin)
+            self.chemin_courante = chemin
+            print("Données chargées!")
+            return True
 
+        except Exception as erreur: 
+            messagebox.showerror("Erreur", str(erreur))
+            return False
     def sauvegarder_csv(self):
         """Sauvegarder les données."""
 
@@ -121,6 +124,10 @@ class MainApplication(ctk.CTk):
         self.df_resultats = pd.DataFrame()
         """
         self.create_menu()
+    def charger_et_actualiser(self):
+        if self.handler.charger_csv():
+            self.update_graph(self.selection.get())
+
     def update_graph(self, choix):
         #Si les données ne sont pas chargées, arrêter l'éxecution
         if self.handler.df.empty:
@@ -152,14 +159,13 @@ class MainApplication(ctk.CTk):
         file_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="Fichier", menu=file_menu)
         file_menu.add_command(label="Sauvegarder", command=self.handler.sauvegarder_csv)
-        file_menu.add_command(label="Charger", command=self.handler.charger_csv)
+        file_menu.add_command(label="Charger", command=self.charger_et_actualiser)
         #Variable pour mettre choix de graphique
-        selection = tk.StringVar()
-        selection.set("Nombre de collisions")
+        self.selection = tk.StringVar(value="Nombre de collisions")
         #Liste d'options
         options = ["Nombre de collisions","Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
                    "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
-        menuDeroulantGraphique = ctk.CTkOptionMenu(self, variable=selection, values = options, command = self.update_graph, font=("Arial", 13), corner_radius=8, height=36)
+        menuDeroulantGraphique = ctk.CTkOptionMenu(self, variable=self.selection, values = options, command = self.update_graph, font=("Arial", 13), corner_radius=8, height=36)
         menuDeroulantGraphique.place(relx=0.025, rely=0.2, anchor="nw", relwidth=0.2)
         TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Statistique à afficher",font=("Arial", 16, "bold"), text_color= "black", fg_color= "transparent")
         TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.16, anchor="center")
