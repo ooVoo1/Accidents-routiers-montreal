@@ -2,17 +2,12 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import pandas as pd
+from matplotlib.ticker import AutoMinorLocator
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import os
-
-"""
-def importer_csv(chemin):
-    df = pd.read_csv(chemin)
-    return df
-"""
 
 class DataHandler():
     """Fait la gestion des fichiers et du DataFrame."""
@@ -24,7 +19,7 @@ class DataHandler():
     def charger_csv(self):
         """Charger les données."""
 
-        # Demander l'utilisateur à choisir un fichier CSV.
+        # Demander à l'utilisateur de choisir un fichier CSV.
 
         chemin = filedialog.askopenfilename(title="Charger fichier CSV", filetypes=[("Fichiers CSV", "*.csv")])
 
@@ -102,10 +97,18 @@ class GraphMaker(ctk.CTkFrame):
         self.ax.set_title(titre)
         self.ax.set_xlabel("Année")
         self.ax.set_ylabel(label_y)
-        self.ax.grid(True)
+        # Ajouter quadrillage mineur
+        self.ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+        self.ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+
+        # Quadrillage majeur
+        self.ax.grid(which="major", linestyle="-", linewidth=0.8, alpha=0.5)
+
+        # Quadrillage mineur
+        self.ax.grid(which="minor", linestyle=":", linewidth=0.5, alpha=0.5)        
         # Ajuster espacement
         self.figure.tight_layout()
-        # Actualiser graphique
+        # Refaire graphique
         self.canvas.draw_idle()
 
 class MainApplication(ctk.CTk):
@@ -127,6 +130,8 @@ class MainApplication(ctk.CTk):
     def charger_et_actualiser(self):
         if self.handler.charger_csv():
             self.update_graph(self.selection.get())
+
+    
 
     def update_graph(self, choix):
         #Si les données ne sont pas chargées, arrêter l'éxecution
@@ -166,9 +171,9 @@ class MainApplication(ctk.CTk):
         options = ["Nombre de collisions","Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
                    "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
         menuDeroulantGraphique = ctk.CTkOptionMenu(self, variable=self.selection, values = options, command = self.update_graph, font=("Arial", 13), corner_radius=8, height=36)
-        menuDeroulantGraphique.place(relx=0.025, rely=0.2, anchor="nw", relwidth=0.2)
+        menuDeroulantGraphique.place(relx=0.025, rely=0.09, anchor="nw", relwidth=0.2)
         TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Statistique à afficher",font=("Arial", 16, "bold"), text_color= "black", fg_color= "transparent")
-        TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.16, anchor="center")
+        TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.05, anchor="center")
 if __name__ == "__main__":
     ctk.set_appearance_mode("system")
     ctk.set_default_color_theme("blue")
