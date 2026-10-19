@@ -95,6 +95,7 @@ class GraphMaker(ctk.CTkFrame):
         # Tracer la nouvelle courbe
         self.ax.plot(x, y, marker="o")
         # Personnaliser
+        self.ax.set_xticks(x)
         self.ax.set_title(titre)
         self.ax.set_xlabel("Année")
         self.ax.set_ylabel(label_y)
@@ -108,7 +109,7 @@ class MainApplication(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Accidents routiers Montreal")
-        self.config(bg="white")
+        self.configure(fg_color="white")
         self.geometry("1240x768")
         self.handler = DataHandler()
         self.graph = GraphMaker(self)
@@ -158,10 +159,10 @@ class MainApplication(ctk.CTk):
         #Liste d'options
         options = ["Nombre de collisions","Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
                    "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
-        menuDeroulantGraphique = tk.OptionMenu(self, selection, *options, command=self.update_graph)
-        menuDeroulantGraphique.place(relx=0.12, rely=0.2, anchor="center", relwidth=0.2, relheight=0.05)
-        TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Choisir la donnée à visualiser graphiquement")
-        TitreMenuDeroulantGraphique.place(relx=0.12, rely=0.15, anchor="center", relwidth=0.25, relheight=0.05)
+        menuDeroulantGraphique = ctk.CTkOptionMenu(self, variable=selection, values = options, command = self.update_graph, font=("Arial", 13), corner_radius=8, height=36)
+        menuDeroulantGraphique.place(relx=0.025, rely=0.2, anchor="nw", relwidth=0.2)
+        TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Statistique à afficher",font=("Arial", 16, "bold"), text_color= "black", fg_color= "transparent")
+        TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.16, anchor="center")
 if __name__ == "__main__":
     ctk.set_appearance_mode("system")
     ctk.set_default_color_theme("blue")
