@@ -15,6 +15,8 @@ class DataHandler():
     def __init__(self):
         self.df = pd.DataFrame() # DataFrame initialement vide.
         self.chemin_courante = "" # Chemin courante du fichier
+        self.df_resultats = pd.DataFrame() #Dataframe pour exportation des données
+
 
     def charger_csv(self):
         """Charger les données."""
@@ -120,13 +122,8 @@ class MainApplication(ctk.CTk):
         self.handler = DataHandler()
         self.graph = GraphMaker(self)
         self.graph.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.75, relheight=0.7)
-
-        """
-        self.df = pd.read_csv("collisions_routieres.csv")
-        self.df_filtre = self.df.copy()
-        self.df_resultats = pd.DataFrame()
-        """
         self.create_menu()
+
     def charger_et_actualiser(self):
         if self.handler.charger_csv():
             self.update_graph(self.selection.get())
