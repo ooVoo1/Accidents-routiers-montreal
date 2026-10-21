@@ -113,6 +113,12 @@ class GraphMaker(ctk.CTkFrame):
         # Refaire graphique
         self.canvas.draw_idle()
 
+class Accueil(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        label = tk.Label(self, text="C'est la Page d'Accueil")
+        label.pack(pady=20)
+
 class MainApplication(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -120,9 +126,82 @@ class MainApplication(ctk.CTk):
         self.configure(fg_color="white")
         self.geometry("1240x768")
         self.handler = DataHandler()
-        self.graph = GraphMaker(self)
-        self.graph.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.75, relheight=0.7)
+        #Créer le menu
         self.create_menu()
+        #Pour que les pages remplissent bien la fenêtre
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        #Créer pages
+        self.page_accueil = ctk.CTkFrame(self, fg_color= "white")
+        self.page_graphiques = ctk.CTkFrame(self, fg_color= "white")
+        self.page_aide = ctk.CTkFrame(self, fg_color= "white")
+        self.page_pie = ctk.CTkFrame(self, fg_color="white")
+        self.page_barres = ctk.CTkFrame(self, fg_color="white")
+        #Placer pages
+        self.page_accueil.grid(row=0, column=0, sticky="nsew")
+        self.page_graphiques.grid(row=0, column=0, sticky="nsew")
+        self.page_aide.grid(row=0, column=0, sticky="nsew")
+        self.page_pie.grid(row=0, column=0, sticky="nsew")
+        self.page_barres.grid(row=0, column=0, sticky="nsew")
+        #Création page graphique évolution annuelle
+        self.creer_page_graphiques()
+        #Page accueil
+        titre_accueil = ctk.CTkLabel(self.page_accueil, text="Accueil", font=("Arial", 28, "bold"))
+        titre_accueil.pack(pady=50)
+        #Page aide
+        titre_aide = ctk.CTkLabel(self.page_aide, text="Aide", font=("Arial", 28, "bold"))
+        titre_aide.pack(pady=50)
+
+        # Page Pie graph
+        titre_pie = ctk.CTkLabel(self.page_pie, text="Graphique circulaire", font=("Arial", 28, "bold"))
+        titre_pie.pack(pady=50)
+
+        # Page graphique à barres
+        titre_barres = ctk.CTkLabel(self.page_barres, text="Graphique à barres", font=("Arial", 28, "bold"))
+        titre_barres.pack(pady=50)
+        self.afficher_page(self.page_accueil)
+
+    def creer_page_graphiques(self):
+
+        # Création du graphique
+        self.graph = GraphMaker(self.page_graphiques)
+
+        self.graph.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.75, relheight=0.7)
+
+        # Variable pour le choix de la statistique
+        self.selection = tk.StringVar(value="Nombre de collisions")
+
+        # Liste des statistiques disponibles
+        options = ["Nombre de collisions", "Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
+        "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
+
+        # Menu déroulant
+        menuDeroulantGraphique = ctk.CTkOptionMenu(self.page_graphiques, variable=self.selection, values=options, command=self.update_graph, font=("Arial", 13), corner_radius=8, height=36)
+
+        menuDeroulantGraphique.place(relx=0.025, rely=0.09, anchor="nw", relwidth=0.2)
+
+        # Label du menu déroulant
+        TitreMenuDeroulantGraphique = ctk.CTkLabel(self.page_graphiques, text="Statistique à afficher", font=("Arial", 16, "bold"), text_color="black", fg_color="transparent")
+
+        TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.05, anchor="center")
+
+        # Encadré des statistiques
+        self.stats_frame = ctk.CTkFrame(self.page_graphiques, fg_color="white", border_width=1, border_color="#D9DEE5", corner_radius=12)
+
+        self.stats_frame.place(relx=0.025, rely=0.32, anchor="nw", relwidth=0.20, relheight=0.27)
+
+        # Titre de l'encadré
+        self.titre_stats = ctk.CTkLabel(self.stats_frame, text="Résumé statistique", font=("Arial", 16, "bold"), text_color="black")
+
+        self.titre_stats.pack(pady=(12, 8))
+
+        # Texte des statistiques
+        self.texte_stats = ctk.CTkLabel(self.stats_frame, text="Chargez un fichier CSV.", font=("Arial", 13), text_color="black", justify="left", anchor="w")
+
+        self.texte_stats.pack(fill="x", padx=12, pady=8)
+
+    def afficher_page(self, page):
+        page.tkraise()
 
     def charger_et_actualiser(self):
         if self.handler.charger_csv():
@@ -176,34 +255,32 @@ class MainApplication(ctk.CTk):
     def create_menu(self):
         menu = tk.Menu(self)
         self.config(menu=menu)
-
         menu.option_add("*Menu.font", "Arial 12")
+        #Accueil
+        menu.add_command(label="Accueil", command=lambda: self.afficher_page(self.page_accueil))
+        #Aide
+        menu.add_command(label="Aide", command=lambda: self.afficher_page(self.page_aide))
 
+
+        #File menu
         file_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="Fichier", menu=file_menu)
         file_menu.add_command(label="Sauvegarder", command=self.handler.sauvegarder_csv)
         file_menu.add_command(label="Charger", command=self.charger_et_actualiser)
-        #Variable pour mettre choix de graphique
-        self.selection = tk.StringVar(value="Nombre de collisions")
-        #Liste d'options
 
-        options = ["Nombre de collisions","Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
-                   "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
-        #Création menu déroulant
-        menuDeroulantGraphique = ctk.CTkOptionMenu(self, variable=self.selection, values = options, command = self.update_graph, font=("Arial", 13), corner_radius=8, height=36)
-        menuDeroulantGraphique.place(relx=0.025, rely=0.09, anchor="nw", relwidth=0.2)
-        #Création label menu déroulant
-        TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Statistique à afficher",font=("Arial", 16, "bold"), text_color= "black", fg_color= "transparent")
-        TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.05, anchor="center")
-        #Création statsbox
-        self.stats_frame = ctk.CTkFrame(self, fg_color="white", border_width=1, border_color="#D9DEE5", corner_radius=12)
-        self.stats_frame.place(relx=0.025, rely=0.32, anchor="nw", relwidth=0.20, relheight=0.27)
-        #Création label statsbox
-        self.titre_stats = ctk.CTkLabel(self.stats_frame, text="Résumé statistique", font=("Arial", 16, "bold"), text_color="black")
-        self.titre_stats.pack(pady=(12, 8))
-        #Création texte pour stats
-        self.texte_stats = ctk.CTkLabel(self.stats_frame, text="Chargez un fichier CSV.", font=("Arial", 13), text_color="black", justify="left", anchor="w")
-        self.texte_stats.pack(fill="x", padx=12, pady=8)
+        #Menu graphiques
+        graphiques_menu = tk.Menu(menu, tearoff=0)
+        menu.add_cascade(label="Graphiques", menu=graphiques_menu)
+
+        # Évolution annuelle
+        graphiques_menu.add_command(label="Évolution annuelle", command=lambda: self.afficher_page(self.page_graphiques))
+
+        # Pie graph
+        graphiques_menu.add_command(label="Pie graph", command=lambda: self.afficher_page(self.page_pie))
+
+        # Graphique à barres
+        graphiques_menu.add_command(label="Graphique à barres", command=lambda: self.afficher_page(self.page_barres))
+
         
 if __name__ == "__main__":
     ctk.set_appearance_mode("system")
