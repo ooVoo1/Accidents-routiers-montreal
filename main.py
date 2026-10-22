@@ -113,11 +113,35 @@ class GraphMaker(ctk.CTkFrame):
         # Refaire graphique
         self.canvas.draw_idle()
 
-class Accueil(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        label = tk.Label(self, text="C'est la Page d'Accueil")
-        label.pack(pady=20)
+class PieMaker(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+        # Création de la figure
+        self.figure = Figure(figsize=(7, 4))
+        # Création des axes du graphique
+        self.ax = self.figure.add_subplot(111)
+        # Intégration du graphique dans CustomTkinter
+        self.canvas = FigureCanvasTkAgg(self.figure, master=self)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+
+    def creat_graph(self,row, columns,titre):
+        #pour enlever l'ancien graphique
+        self.ax.clear()
+        #créer le graphe circulaire et faire afficher les valeurs sous forme de pourcentage
+        self.ax.pie(columns,  autopct='%1.1f%%', startangle=90)
+        #le nom du graphique
+        self.ax.set_title(f"Gravité des accidents en {titre}", fontdict={"fontsize": 14, "weight": "bold"})
+        #afficher les categories sous forme de  legende
+        self.ax.legend(row,title = "categories", loc ="center left")
+        #,bbox_to_anchor=(1, 0, 0.5, 1)
+
+        #pour l'affichage du cercle pour qu'il reste un cercle
+        self.ax.axis('equal')
+
+        
+        self.figure.tight_layout()
+        self.canvas.draw_idle()
+
 
 class MainApplication(ctk.CTk):
     def __init__(self):
@@ -145,17 +169,13 @@ class MainApplication(ctk.CTk):
         self.page_barres.grid(row=0, column=0, sticky="nsew")
         #Création page graphique évolution annuelle
         self.creer_page_graphiques()
+        self.creer_page_graphique_circulaire()
         #Page accueil
-        titre_accueil = ctk.CTkLabel(self.page_accueil, text="Accueil", font=("Arial", 28, "bold"))
-        titre_accueil.pack(pady=50)
+        label = ctk.CTkLabel(self.page_accueil, text="C'est la Page d'Accueil")
+        label.pack(pady=20)
         #Page aide
         titre_aide = ctk.CTkLabel(self.page_aide, text="Aide", font=("Arial", 28, "bold"))
         titre_aide.pack(pady=50)
-
-        # Page Pie graph
-        titre_pie = ctk.CTkLabel(self.page_pie, text="Graphique circulaire", font=("Arial", 28, "bold"))
-        titre_pie.pack(pady=50)
-
         # Page graphique à barres
         titre_barres = ctk.CTkLabel(self.page_barres, text="Graphique à barres", font=("Arial", 28, "bold"))
         titre_barres.pack(pady=50)
@@ -200,8 +220,23 @@ class MainApplication(ctk.CTk):
 
         self.texte_stats.pack(fill="x", padx=12, pady=8)
 
+    def creer_page_graphique_circulaire(self):
+        self.pie_graph = PieMaker(self.page_pie)
+        self.pie_graph.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.75, relheight=0.7)
+        
+        options_annees = ["2012","2013","2014","2015","2016","2017","2018","2019","2020","2021"]
+        self.selection_annees = tk.StringVar(value = options_annees[0])
+
+        menuDeroulantGraphique = ctk.CTkOptionMenu(self.page_pie, variable=self.selection_annees, values=options_annees, command=self.update_pie, font=("Arial", 13), corner_radius=8, height=36)
+        menuDeroulantGraphique.place(relx=0.025, rely=0.09, anchor="nw", relwidth=0.2)
+        TitreMenuDeroulantGraphique = ctk.CTkLabel(self.page_pie, text="Année", font=("Arial", 16, "bold"), text_color="black", fg_color="transparent")
+        TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.05, anchor="center")
+        
+
+
     def afficher_page(self, page):
         page.tkraise()
+
 
     def charger_et_actualiser(self):
         if self.handler.charger_csv():
@@ -251,6 +286,18 @@ class MainApplication(ctk.CTk):
         f"Maximum annuel : {int(maximum)}\n\n"
         f"Mois record : {mois_record}")
         self.texte_stats.configure(text=texte)
+
+    def update_pie(self,choix):
+        if self.handler.df.empty:
+                    return
+        annee = int(choix)
+        df_annee = self.handler.df[ self.handler.df['AN'] == annee]
+        resultat = df_annee.groupby("GRAVITE").size()
+        row = list(resultat.index)
+        columns = list(resultat.values)
+        self.pie_graph.creat_graph(row,columns,annee)
+
+
         
     def create_menu(self):
         menu = tk.Menu(self)
