@@ -144,6 +144,54 @@ class PieMaker(ctk.CTkFrame):
         self.canvas.draw_idle()
 
 
+class BarMaker(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+        # Création de la figure
+        self.figure = Figure(figsize=(7, 4))
+        # Création des axes du graphique
+        self.ax = self.figure.add_subplot(111)
+        # Intégration du graphique dans CustomTkinter
+        self.canvas = FigureCanvasTkAgg(self.figure, master=self)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+    def creat_graph(self,pivot_df):
+        #pour enlever l'ancien graphique
+        self.ax.clear()
+        #créer le graphe à bar
+        pivot_df.plot(kind = 'bar', ax =self.ax, width = 0.8)
+        self.ax.set_xlabel("Mois")
+        self.ax.set_ylabel("Nombre total de victimes")
+        self.ax.grid(axis='y', linestyle="--", alpha=0.7)
+        self.ax.legend(loc='lower left', bbox_to_anchor=(0.5, -0.4), ncol= 2)
+
+        self.figure.tight_layout()
+        self.canvas.draw_idle()
+
+
+class BarMaker(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+        # Création de la figure
+        self.figure = Figure(figsize=(7, 4))
+        # Création des axes du graphique
+        self.ax = self.figure.add_subplot(111)
+        # Intégration du graphique dans CustomTkinter
+        self.canvas = FigureCanvasTkAgg(self.figure, master=self)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+    def creat_graph(self,pivot_df):
+        #pour enlever l'ancien graphique
+        self.ax.clear()
+        #créer le graphe à bar
+        pivot_df.plot(kind = 'bar', ax =self.ax, width = 0.8)
+        self.ax.set_xlabel("Mois")
+        self.ax.set_ylabel("Nombre total de victimes")
+        self.ax.grid(axis='y', linestyle="--", alpha=0.7)
+        self.ax.legend(loc='lower left', bbox_to_anchor=(0.5, -0.4), ncol= 2)
+
+        self.figure.tight_layout()
+        self.canvas.draw_idle()
+
+
 class MainApplication(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -171,15 +219,16 @@ class MainApplication(ctk.CTk):
         #Création page graphique évolution annuelle
         self.creer_page_graphiques()
         #Création page graphique circulaire
+        #Création page graphique circulaire
         self.creer_page_graphique_circulaire()
+        #Création page graphique à barres
+        self.creer_page_graphique_bar()
         #Création page accueil
         self.creer_accueil()
         #Page aide
         titre_aide = ctk.CTkLabel(self.page_aide, text="Aide", font=("Arial", 28, "bold"))
         titre_aide.pack(pady=50)
-        # Page graphique à barres
-        titre_barres = ctk.CTkLabel(self.page_barres, text="Graphique à barres", font=("Arial", 28, "bold"))
-        titre_barres.pack(pady=50)
+
         self.afficher_page(self.page_accueil)
 
     def creer_accueil(self):
@@ -250,12 +299,12 @@ class MainApplication(ctk.CTk):
 
         self.graph.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.75, relheight=0.7)
 
-        # Variable pour le choix de la statistique
-        self.selection = tk.StringVar(value="Nombre de collisions")
 
         # Liste des statistiques disponibles
         options = ["Nombre de collisions", "Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
         "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
+        # Variable pour le choix de la statistique
+        self.selection = tk.StringVar(value=options[0])
 
         # Menu déroulant
         menuDeroulantGraphique = ctk.CTkOptionMenu(self.page_graphiques, variable=self.selection, values=options, command=self.update_graph, font=("Arial", 13), corner_radius=8, height=36)
@@ -293,6 +342,29 @@ class MainApplication(ctk.CTk):
         menuDeroulantGraphique.place(relx=0.025, rely=0.09, anchor="nw", relwidth=0.2)
         TitreMenuDeroulantGraphique = ctk.CTkLabel(self.page_pie, text="Année", font=("Arial", 16, "bold"), text_color="black", fg_color="transparent")
         TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.05, anchor="center")
+
+    def creer_page_graphique_bar(self):
+        self.barres_graphe = BarMaker(self.page_barres)
+        self.barres_graphe.place(relx=0.6, rely=0.35, anchor="center", relwidth=0.75, relheight=0.7)
+
+        options_annees = ["2012","2013","2014","2015","2016","2017","2018","2019","2020","2021"]
+        options_type = ["Tout","Nombre de morts", "Nombre de blessés graves", "Nombre de blessés légers",
+                "Nombre total de victimes", "Nombre de victimes piétons", "Nombre de victimes moto", "Nombre de victimes vélo"]
+
+        self.selection_annees_bar = tk.StringVar(value = options_annees[0])
+        self.selection_type = tk.StringVar(value= options_type[0])
+
+        
+        menuDeroulantGraphique = ctk.CTkOptionMenu(self.page_barres, variable=self.selection_annees_bar, values=options_annees, command=lambda val:self.update_bar(self.selection_annees_bar.get(), self.selection_type.get()), font=("Arial", 13), corner_radius=8, height=36)
+        menuDeroulantGraphique.place(relx=0.025, rely=0.09, anchor="nw", relwidth=0.2)
+        TitreMenuDeroulantGraphique = ctk.CTkLabel(self.page_barres, text="Année", font=("Arial", 16, "bold"), text_color="black", fg_color="transparent")
+        TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.05, anchor="center")
+
+        menuDeroulantGraphique = ctk.CTkOptionMenu(self.page_barres, variable=self.selection_type, values=options_type, command=lambda val:self.update_bar(self.selection_annees_bar.get(), self.selection_type.get()), font=("Arial", 13), corner_radius=8, height=36)
+        menuDeroulantGraphique.place(relx=0.025, rely=0.25, anchor="nw", relwidth=0.2)
+        TitreMenuDeroulantGraphique = ctk.CTkLabel(self.page_barres, text="Type de victime", font=("Arial", 16, "bold"), text_color="black", fg_color="transparent")
+        TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.21, anchor="center")
+
         
 
 
@@ -308,6 +380,7 @@ class MainApplication(ctk.CTk):
         if self.handler.charger_csv():
             self.update_graph(self.selection.get())
             self.update_pie(self.selection_annees.get())
+            self.update_bar(self.selection_annees_bar.get(),self.selection_type.get())
 
     
 
@@ -356,13 +429,48 @@ class MainApplication(ctk.CTk):
 
     def update_pie(self,choix):
         if self.handler.df.empty:
-                    return
+            return
         annee = int(choix)
         df_annee = self.handler.df[ self.handler.df['AN'] == annee]
         resultat = df_annee.groupby("GRAVITE").size()
         row = list(resultat.index)
         columns = list(resultat.values)
         self.pie_graph.creat_graph(row,columns,annee)
+
+    def update_bar(self,choix,choix2):
+        if self.handler.df.empty:
+            return
+        annee = int(choix)
+        df_annee_bar = self.handler.df[ self.handler.df['AN'].astype(int) == annee]
+        noms_mois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+
+        colonnes = {"Nombre de morts": "NB_MORTS","Nombre de blessés graves": "NB_BLESSES_GRAVES","Nombre de blessés légers": "NB_BLESSES_LEGERS","Nombre total de victimes": "NB_VICTIMES_TOTAL","Nombre de victimes piétons": "NB_VICTIMES_PIETON","Nombre de victimes moto": "NB_VICTIMES_MOTO","Nombre de victimes vélo": "NB_VICTIMES_VELO"
+        }
+
+
+        df_annee_bar['mois'] = pd.to_datetime(df_annee_bar["DT_ACCDN"], errors="coerce").dt.month
+        data_dict = {}
+
+        if choix2 == "Tout":
+            
+            for row, col in colonnes.items():
+                if col in df_annee_bar.columns:
+                    data_dict[row] = df_annee_bar.groupby('mois')[col].sum()
+
+            #Récupérer mois de chaque accident
+            pivot_df = pd.DataFrame(data_dict)
+            pivot_df = pivot_df.reindex(range(1, 13), fill_value=0)
+            pivot_df.index = noms_mois
+
+
+        else:
+            serie_resultat = df_annee_bar.groupby('mois')[colonnes[choix2]].sum()
+            pivot_df = pd.DataFrame({choix2: serie_resultat})
+            pivot_df = pivot_df.reindex(range(1, 13), fill_value=0)
+            pivot_df.index = noms_mois
+
+        self.barres_graphe.creat_graph(pivot_df)
+
 
 
         
