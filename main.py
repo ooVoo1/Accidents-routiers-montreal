@@ -6,6 +6,7 @@ from matplotlib.ticker import AutoMinorLocator
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from PIL import Image
 
 import os
 
@@ -146,7 +147,7 @@ class PieMaker(ctk.CTkFrame):
 class MainApplication(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Accidents routiers Montreal")
+        self.title("RouteSûre")
         self.configure(fg_color="white")
         self.geometry("1240x768")
         self.handler = DataHandler()
@@ -169,10 +170,10 @@ class MainApplication(ctk.CTk):
         self.page_barres.grid(row=0, column=0, sticky="nsew")
         #Création page graphique évolution annuelle
         self.creer_page_graphiques()
+        #Création page graphique circulaire
         self.creer_page_graphique_circulaire()
-        #Page accueil
-        label = ctk.CTkLabel(self.page_accueil, text="C'est la Page d'Accueil")
-        label.pack(pady=20)
+        #Création page accueil
+        self.creer_accueil()
         #Page aide
         titre_aide = ctk.CTkLabel(self.page_aide, text="Aide", font=("Arial", 28, "bold"))
         titre_aide.pack(pady=50)
@@ -180,6 +181,67 @@ class MainApplication(ctk.CTk):
         titre_barres = ctk.CTkLabel(self.page_barres, text="Graphique à barres", font=("Arial", 28, "bold"))
         titre_barres.pack(pady=50)
         self.afficher_page(self.page_accueil)
+
+    def creer_accueil(self):
+        #Mettre logo dans une variable pour la modifier
+        image = Image.open("logo_routesure.png")
+        largeur, hauteur = image.size
+        #Recadrer l'image
+        image = image.crop((0,int(hauteur * 0.22), largeur, int(hauteur * 0.78)))
+        #Placer le logo dans l'app
+        self.logo = ctk.CTkImage(light_image=image, dark_image=image, size=(610, 255))
+        label_logo = ctk.CTkLabel(self.page_accueil, image=self.logo, text="")
+        label_logo.pack(pady=(25, 5))
+        #Création et placement du texte sous le logo
+        description = ctk.CTkLabel(self.page_accueil, text="Explorez les données des collisions routières de Montréal", font=("Arial", 16), text_color="#64748B")
+        description.pack(pady=(0, 20))
+        #Création des emplacements des gros boutons pour les graphiques
+        conteneur = ctk.CTkFrame(self.page_accueil, fg_color="transparent")
+        conteneur.pack(fill="x", padx=60, pady=10)
+        # Mettre les 3 boutons à la même taille
+        for i in range(3):
+            conteneur.grid_columnconfigure(i, weight=1)
+        #Liste de tuple pour les textes des gros boutons
+        pages = [("Évolution annuelle", "Visualiser l'évolution des collisions au fil des années.", self.page_graphiques),
+        ("Graphique circulaire", "Analyser la répartition des collisions selon leur gravité.", self.page_pie),
+        ("Graphique à barres", "Comparer différentes catégories de collisions.", self.page_barres)]
+        #Mettre les logos des boutons dans une variable
+        icones = ["icone_evolution.png","icone_circulaire.png","icone_barres.png"]
+        #Pour garder les icones en mémoire
+        self.icones_accueil = []
+        # Créer les trois gros boutons
+        for i, (titre, description, page) in enumerate(pages):
+            #Création de l'objet
+            gros_bouton = ctk.CTkFrame(conteneur, fg_color="#EDF5FF", corner_radius=12, height=220)
+            #Mise en place
+            gros_bouton.grid(row=0, column=i, padx=10, sticky="nsew")
+            gros_bouton.grid_propagate(False)
+            #Création et placement titre
+            titre_gros_bouton = ctk.CTkLabel(gros_bouton, text=titre, font=("Arial", 18, "bold"), text_color="#133E70")
+            titre_gros_bouton.pack(pady=(35, 8))
+            #Pour que le contenu du bouton soit centré
+            contenu = ctk.CTkFrame(gros_bouton, fg_color="transparent")
+            contenu.pack(expand=True)
+            #Loader l'image du bouton
+            image = Image.open(icones[i])
+            icone = ctk.CTkImage(light_image=image, dark_image=image, size=(44, 44))
+            #Pour le garder en mémoire
+            self.icones_accueil.append(icone)
+            #Maintenant afficher et placer l'image du bouton
+            image_gros_bouton = ctk.CTkLabel(contenu, image=icone, text="")
+            image_gros_bouton.pack(pady=(0, 10))
+            #Création et placement description du bouton
+            texte_gros_bouton = ctk.CTkLabel(gros_bouton, text=description, font=("Arial", 13), text_color="#64748B", wraplength=280)
+            texte_gros_bouton.pack(padx=15)
+            #Création du bouton en tant que tel, car jusqu'ici nous n'avions qu'un simple encadré non interactif
+            for widget in (gros_bouton, contenu, image_gros_bouton, titre_gros_bouton, texte_gros_bouton):
+                widget.bind("<Button-1>", lambda event, p=page: self.afficher_page(p))
+        #Création et placement du bouton pour charger les données
+        bouton_charger = ctk.CTkButton(self.page_accueil, text="Charger des données CSV", command=self.charger_et_actualiser, font=("Arial", 15, "bold"), height=42,width=250)
+        bouton_charger.pack(pady=(25, 8))
+        bouton_aide = ctk.CTkButton(self.page_accueil, text="Aide", command=lambda: self.afficher_page(self.page_aide), fg_color="transparent", text_color="#1669B5", border_width=1, border_color="#1669B5", height=36, width=130)
+        bouton_aide.pack(pady=5)
+
 
     def creer_page_graphiques(self):
 
@@ -216,7 +278,7 @@ class MainApplication(ctk.CTk):
         self.titre_stats.pack(pady=(12, 8))
 
         # Texte des statistiques
-        self.texte_stats = ctk.CTkLabel(self.stats_frame, text="Chargez un fichier CSV.", font=("Arial", 13), text_color="black", justify="left", anchor="w")
+        self.texte_stats = ctk.CTkLabel(self.stats_frame, text="Chargez un fichier CSV", font=("Arial", 13), text_color="black", justify="left", anchor="w")
 
         self.texte_stats.pack(fill="x", padx=12, pady=8)
 
@@ -236,6 +298,10 @@ class MainApplication(ctk.CTk):
 
     def afficher_page(self, page):
         page.tkraise()
+        if page == self.page_accueil:
+            self.config(menu="")
+        else:
+            self.config(menu=self.menu_principal)
 
 
     def charger_et_actualiser(self):
@@ -301,8 +367,8 @@ class MainApplication(ctk.CTk):
 
         
     def create_menu(self):
-        menu = tk.Menu(self)
-        self.config(menu=menu)
+        self.menu_principal = tk.Menu(self)
+        menu = self.menu_principal
         menu.option_add("*Menu.font", "Arial 12")
         #Accueil
         menu.add_command(label="Accueil", command=lambda: self.afficher_page(self.page_accueil))
