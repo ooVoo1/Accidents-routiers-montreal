@@ -132,7 +132,7 @@ class PieMaker(ctk.CTkFrame):
         #le nom du graphique
         self.ax.set_title(f"Gravité des accidents en {titre}", fontdict={"fontsize": 14, "weight": "bold"})
         #afficher les categories sous forme de  legende
-        self.ax.legend(row,title = "categories", loc ="center left")
+        self.ax.legend(row,title = "Catégories", loc ="lower right", bbox_to_anchor=(1.05, 0.03), fontsize=10)
         #,bbox_to_anchor=(1, 0, 0.5, 1)
 
         #pour l'affichage du cercle pour qu'il reste un cercle
@@ -241,6 +241,7 @@ class MainApplication(ctk.CTk):
     def charger_et_actualiser(self):
         if self.handler.charger_csv():
             self.update_graph(self.selection.get())
+            self.update_pie(self.selection_annees.get())
 
     
 
