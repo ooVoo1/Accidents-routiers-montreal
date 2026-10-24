@@ -226,70 +226,190 @@ class MainApplication(ctk.CTk):
         #Création page accueil
         self.creer_accueil()
         #Page aide
-        titre_aide = ctk.CTkLabel(self.page_aide, text="Aide", font=("Arial", 28, "bold"))
-        titre_aide.pack(pady=50)
+        self.creer_page_aide()
 
         self.afficher_page(self.page_accueil)
 
     def creer_accueil(self):
-        #Mettre logo dans une variable pour la modifier
+        # Pour que l'accueil s'adapte à la fenêtre
+        self.page_accueil.grid_columnconfigure(0, weight=1)
+        self.page_accueil.grid_rowconfigure(0, weight=4)
+        self.page_accueil.grid_rowconfigure(2, weight=3)
+        self.page_accueil.grid_rowconfigure(3, weight=1)
+
+        # Place pour le logo RouteSure
+        place_logo = ctk.CTkFrame(self.page_accueil,fg_color="transparent")
+        place_logo.grid(row=0, column=0, sticky="nsew")
+
+        # Loader et recadrer le logo
         image = Image.open("logo_routesure.png")
         largeur, hauteur = image.size
-        #Recadrer l'image
-        image = image.crop((0,int(hauteur * 0.22), largeur, int(hauteur * 0.78)))
-        #Placer le logo dans l'app
+        image = image.crop((0, int(hauteur * 0.22), largeur, int(hauteur * 0.78)))
+        #Afficher et placer logo
         self.logo = ctk.CTkImage(light_image=image, dark_image=image, size=(610, 255))
-        label_logo = ctk.CTkLabel(self.page_accueil, image=self.logo, text="")
-        label_logo.pack(pady=(25, 5))
-        #Création et placement du texte sous le logo
+        label_logo = ctk.CTkLabel(place_logo,image=self.logo,text="")
+        label_logo.pack(expand=True)
+
+        # Adapter la taille du logo à la fenêtre
+        def adapter_logo(event):
+            proportion = image.width / image.height
+            largeur_logo = min(int(event.width * 0.8),960,int(event.height * 0.85 * proportion))
+            if largeur_logo > 0:
+                hauteur_logo = int(largeur_logo / proportion)
+                self.logo.configure(size=(largeur_logo, hauteur_logo))
+
+        place_logo.bind("<Configure>", adapter_logo)
+
+        # Description de l'app en dessous du logo
         description = ctk.CTkLabel(self.page_accueil, text="Explorez les données des collisions routières de Montréal", font=("Arial", 16), text_color="#64748B")
-        description.pack(pady=(0, 20))
-        #Création des emplacements des gros boutons pour les graphiques
+        description.grid(row=1, column=0, pady=10)
+
+        # Emplacements des gros boutons
         conteneur = ctk.CTkFrame(self.page_accueil, fg_color="transparent")
-        conteneur.pack(fill="x", padx=60, pady=10)
-        # Mettre les 3 boutons à la même taille
+        conteneur.grid(row=2, column=0, sticky="nsew", padx=50, pady=10)
+        conteneur.grid_rowconfigure(0, weight=1)
+
         for i in range(3):
-            conteneur.grid_columnconfigure(i, weight=1)
-        #Liste de tuple pour les textes des gros boutons
+            conteneur.grid_columnconfigure(i, weight=1, uniform="cartes")
+        #Liste de tuples avec le contenu des boutons
         pages = [("Évolution annuelle", "Visualiser l'évolution des collisions au fil des années.", self.page_graphiques),
         ("Graphique circulaire", "Analyser la répartition des collisions selon leur gravité.", self.page_pie),
         ("Graphique à barres", "Comparer différentes catégories de collisions.", self.page_barres)]
-        #Mettre les logos des boutons dans une variable
-        icones = ["icone_evolution.png","icone_circulaire.png","icone_barres.png"]
+        #Mettre les icones des 3 gros boutons dans une variable
+        icones = ["icone_evolution.png", "icone_circulaire.png", "icone_barres.png"]
         #Pour garder les icones en mémoire
         self.icones_accueil = []
-        # Créer les trois gros boutons
+
+        # Création des trois gros boutons
         for i, (titre, description, page) in enumerate(pages):
-            #Création de l'objet
-            gros_bouton = ctk.CTkFrame(conteneur, fg_color="#EDF5FF", corner_radius=12, height=220)
-            #Mise en place
+            #Création et placement de l'objet
+            gros_bouton = ctk.CTkFrame(conteneur, fg_color="#EDF5FF", corner_radius=12)
             gros_bouton.grid(row=0, column=i, padx=10, sticky="nsew")
-            gros_bouton.grid_propagate(False)
-            #Création et placement titre
-            titre_gros_bouton = ctk.CTkLabel(gros_bouton, text=titre, font=("Arial", 18, "bold"), text_color="#133E70")
-            titre_gros_bouton.pack(pady=(35, 8))
-            #Pour que le contenu du bouton soit centré
+
+            # Centrer le contenu dans le bouton
             contenu = ctk.CTkFrame(gros_bouton, fg_color="transparent")
             contenu.pack(expand=True)
-            #Loader l'image du bouton
-            image = Image.open(icones[i])
-            icone = ctk.CTkImage(light_image=image, dark_image=image, size=(44, 44))
-            #Pour le garder en mémoire
+
+            #Mettre icone du bouton
+            icone = ctk.CTkImage(light_image=Image.open(icones[i]), size=(48, 48))
             self.icones_accueil.append(icone)
-            #Maintenant afficher et placer l'image du bouton
             image_gros_bouton = ctk.CTkLabel(contenu, image=icone, text="")
-            image_gros_bouton.pack(pady=(0, 10))
-            #Création et placement description du bouton
-            texte_gros_bouton = ctk.CTkLabel(gros_bouton, text=description, font=("Arial", 13), text_color="#64748B", wraplength=280)
+            image_gros_bouton.pack(pady=(0, 12))
+
+            # Titre du bouton
+            titre_gros_bouton = ctk.CTkLabel(contenu, text=titre, font=("Arial", 19, "bold"), text_color="#133E70")
+            titre_gros_bouton.pack(pady=(0, 10))
+
+            # Description du graphique associé au bouton
+            texte_gros_bouton = ctk.CTkLabel(contenu, text=description, font=("Arial", 14), text_color="#64748B", wraplength=260)
             texte_gros_bouton.pack(padx=15)
-            #Création du bouton en tant que tel, car jusqu'ici nous n'avions qu'un simple encadré non interactif
+
+            # Rendre bouton clickable (parceque pour l'instant ce n'était qu'un carré avec du texte et une image)
             for widget in (gros_bouton, contenu, image_gros_bouton, titre_gros_bouton, texte_gros_bouton):
                 widget.bind("<Button-1>", lambda event, p=page: self.afficher_page(p))
-        #Création et placement du bouton pour charger les données
-        bouton_charger = ctk.CTkButton(self.page_accueil, text="Charger des données CSV", command=self.charger_et_actualiser, font=("Arial", 15, "bold"), height=42,width=250)
-        bouton_charger.pack(pady=(25, 8))
-        bouton_aide = ctk.CTkButton(self.page_accueil, text="Aide", command=lambda: self.afficher_page(self.page_aide), fg_color="transparent", text_color="#1669B5", border_width=1, border_color="#1669B5", height=36, width=130)
-        bouton_aide.pack(pady=5)
+
+        # place des boutons aide et charger (AC)
+        place_boutons_AC = ctk.CTkFrame(self.page_accueil,fg_color="transparent")
+        place_boutons_AC.grid(row=3, column=0, sticky="nsew")
+
+        # Pour que les boutons aide et charger soient alignés
+        ligne_boutons = ctk.CTkFrame(place_boutons_AC, fg_color="transparent")
+        ligne_boutons.pack(expand=True)
+
+        # image de fichier pour bouton charger
+        self.icone_charger = ctk.CTkImage(light_image=Image.open("icone_charger.png"), size=(24, 24))
+
+        # bouton charger CSV
+        bouton_charger = ctk.CTkButton(ligne_boutons, text="Charger des données CSV", image=self.icone_charger, compound="left",
+        command=self.charger_et_actualiser, font=("Arial", 15, "bold"), height=52, width=290, corner_radius=10)
+        # placer le bouton
+        bouton_charger.pack(side="left", padx=8)
+
+        # image de "?" pour le bouton aide
+        self.icone_aide = ctk.CTkImage(light_image=Image.open("icone_aide.png"), size=(22, 22))
+
+        # bouton aide
+        bouton_aide = ctk.CTkButton(ligne_boutons, text="Aide", image=self.icone_aide, compound="left", command=lambda: self.afficher_page(self.page_aide),
+        fg_color="transparent", text_color="#1669B5", border_width=1, border_color="#CDD8E4", font=("Arial", 15), height=52, width=145, corner_radius=10)
+        # placer le bouton
+        bouton_aide.pack(side="left", padx=8)
+
+    
+    def creer_page_aide(self):
+
+        # Pour que la page remplisse la fenetre
+        self.page_aide.grid_rowconfigure(0, weight=1)
+        self.page_aide.grid_columnconfigure(0, weight=1)
+
+        # Zone défilable
+        zone_aide = ctk.CTkScrollableFrame(self.page_aide, fg_color="white", corner_radius=0)
+        zone_aide.grid(row=0, column=0, sticky="nsew")
+
+        # Conteneur principal
+        conteneur = ctk.CTkFrame(zone_aide, fg_color="transparent")
+        conteneur.pack(fill="both", padx=60, pady=30)
+
+        # Titre de la page
+        titre = ctk.CTkLabel(conteneur, text="Page d'aide RouteSûre", font=("Arial", 30, "bold"), text_color="#133E70")
+        titre.pack(pady=(0, 12))
+        #texte d'accueil
+        introduction = ctk.CTkLabel(conteneur, text="Découvrez comment importer, visualiser et analyser les données des collisions routières de Montréal.", font=("Arial", 15), text_color="#64748B", wraplength=850)
+        introduction.pack(pady=(0, 25))
+
+        # Garder les images en mémoire
+        self.images_aide = []
+
+        # Fonction pour créer une section de la page
+        def ajouter_section(titre, texte, capture=None):
+            #Créer section
+            section = ctk.CTkFrame(conteneur, fg_color="#EDF5FF", corner_radius=12)
+            section.pack(fill="x", pady=10)
+            #titre de la section
+            titre_section = ctk.CTkLabel(section, text=titre, font=("Arial", 19, "bold"), text_color="#133E70", anchor="w")
+            titre_section.pack(fill="x", padx=25, pady=(18, 8))
+            #Ajouter texte d'explication
+            texte_section = ctk.CTkLabel(section, text=texte, font=("Arial", 15), text_color="#475569", justify="left", anchor="w", wraplength=900)
+            texte_section.pack(fill="x", padx=25, pady=(0, 18))
+
+            # Ajouter un screenshot pour aider plus =)
+            if capture and os.path.exists(capture):
+                image = Image.open(capture)
+                largeur = min(image.width, 750)
+                hauteur = int(largeur * image.height / image.width)
+
+                image_aide = ctk.CTkImage(light_image=image, dark_image=image, size=(largeur, hauteur))
+
+                self.images_aide.append(image_aide)
+
+                label_image = ctk.CTkLabel(section, image=image_aide, text="")
+                label_image.pack(pady=(0, 20))
+
+        # Ajout des sections
+        ajouter_section("1. Charger des données CSV", "Depuis la page d'accueil, cliquez sur « Charger des données CSV ».\n\n"
+        "Une fenêtre s'ouvrira pour vous permettre de sélectionner un fichier CSV contenant les données des collisions routières.\n\n"
+        "Une fois le fichier chargé, les graphiques disponibles seront automatiquement actualisés.",
+        "captures/chargement.png")
+
+        ajouter_section("2. Naviguer dans l'application", "Depuis l'accueil, cliquez sur l'une des trois grandes cartes pour accéder au graphique souhaité.\n\n"
+        "Vous pouvez également utiliser le menu « Graphiques » dans la barre supérieure pour changer de page et le bouton « Accueil » pour revenir au menu principal.",
+        "captures/navigation.png")
+
+        ajouter_section("3. Graphique d'évolution annuelle", "Ce graphique permet de visualiser l'évolution des collisions et des victimes au fil des années.\n\n"
+        "Utilisez le menu « Statistique à afficher » pour sélectionner le nombre de collisions, de morts, de blessés ou d'autres catégories de victimes.\n\n"
+        "Le graphique et le résumé statistique s'actualiseront selon votre sélection.",
+        "captures/evolution.png")
+
+        ajouter_section("4. Graphique circulaire", "Le graphique circulaire permet d'observer la répartition des collisions selon leur gravité.\n\n"
+        "Sélectionnez une année dans le menu déroulant. Chaque portion représente une catégorie de gravité, exprimée en pourcentage.",
+        "captures/circulaire.png")
+
+        ajouter_section("5. Exporter les données en CSV", "L'objectif de cette fonctionnalité est de permettre l'enregistrement des données représentées dans le graphique.\n\n"
+        "Lorsque l'exportation des résultats sera implémentée, vous pourrez utiliser le menu « Fichier », sélectionner l'option de sauvegarde, puis choisir le nom et l'emplacement du fichier CSV.",
+        "captures/export_csv.png")
+
+        ajouter_section("6. Enregistrer un graphique en PNG", "Une fonctionnalité d'exportation permettra de sauvegarder le graphique affiché sous forme d'image PNG.\n\n"
+        "Vous pourrez ainsi réutiliser les graphiques dans des présentations, des rapports ou d'autres documents. Cette fonctionnalité reste à implémenter.",
+        "captures/export_png.png")
 
 
     def creer_page_graphiques(self):
