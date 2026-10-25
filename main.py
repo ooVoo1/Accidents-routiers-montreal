@@ -386,7 +386,7 @@ class MainApplication(ctk.CTk):
         self.images_aide = []
 
         # Fonction pour créer une section de la page
-        def ajouter_section(titre, texte, capture=None):
+        def ajouter_section(titre, texte, captures=None):
             #Créer section
             section = ctk.CTkFrame(conteneur, fg_color="#EDF5FF", corner_radius=12)
             section.pack(fill="x", pady=10)
@@ -397,45 +397,50 @@ class MainApplication(ctk.CTk):
             texte_section = ctk.CTkLabel(section, text=texte, font=("Arial", 15), text_color="#475569", justify="left", anchor="w", wraplength=900)
             texte_section.pack(fill="x", padx=25, pady=(0, 18))
 
-            # Ajouter un screenshot pour aider plus =)
-            if capture and os.path.exists(capture):
-                image = Image.open(capture)
-                largeur = min(image.width, 750)
-                hauteur = int(largeur * image.height / image.width)
-
-                image_aide = ctk.CTkImage(light_image=image, dark_image=image, size=(largeur, hauteur))
-
-                self.images_aide.append(image_aide)
-
-                label_image = ctk.CTkLabel(section, image=image_aide, text="")
-                label_image.pack(pady=(0, 20))
+            # Ajouter des screenshots pour aider plus =)
+            if captures:
+                for i, capture in enumerate(captures):
+                    if os.path.exists(capture):
+                        image = Image.open(capture)
+                        # Mettre à la bonne taille
+                        largeur = min(image.width, 750)
+                        hauteur = int(largeur * image.height / image.width)
+                        image_aide = ctk.CTkImage(light_image=image, dark_image=image, size=(largeur, hauteur))
+                        self.images_aide.append(image_aide)
+                        # Afficher l'image dans la section
+                        label_image = ctk.CTkLabel(section, image=image_aide, text="")
+                        label_image.pack(pady=(5, 20), padx=20)
 
         # Ajout des sections
         ajouter_section("1. Charger des données CSV", "Depuis la page d'accueil, cliquez sur « Charger des données CSV ».\n\n"
         "Une fenêtre s'ouvrira pour vous permettre de sélectionner un fichier CSV contenant les données des collisions routières.\n\n"
         "Une fois le fichier chargé, les graphiques disponibles seront automatiquement actualisés.",
-        "captures/chargement.png")
+        ["chargement1.png", "chargement2.png"])
 
         ajouter_section("2. Naviguer dans l'application", "Depuis l'accueil, cliquez sur l'une des trois grandes cartes pour accéder au graphique souhaité.\n\n"
         "Vous pouvez également utiliser le menu « Graphiques » dans la barre supérieure pour changer de page et le bouton « Accueil » pour revenir au menu principal.",
-        "captures/navigation.png")
+        ["navigation1.png","navigation2.png"])
 
         ajouter_section("3. Graphique d'évolution annuelle", "Ce graphique permet de visualiser l'évolution des collisions et des victimes au fil des années.\n\n"
         "Utilisez le menu « Statistique à afficher » pour sélectionner le nombre de collisions, de morts, de blessés ou d'autres catégories de victimes.\n\n"
         "Le graphique et le résumé statistique s'actualiseront selon votre sélection.",
-        "captures/evolution.png")
+        ["evolution.png"])
 
         ajouter_section("4. Graphique circulaire", "Le graphique circulaire permet d'observer la répartition des collisions selon leur gravité.\n\n"
         "Sélectionnez une année dans le menu déroulant. Chaque portion représente une catégorie de gravité, exprimée en pourcentage.",
-        "captures/circulaire.png")
+        ["circulaire.png"])
 
-        ajouter_section("5. Exporter les données en CSV", "L'objectif de cette fonctionnalité est de permettre l'enregistrement des données représentées dans le graphique.\n\n"
-        "Lorsque l'exportation des résultats sera implémentée, vous pourrez utiliser le menu « Fichier », sélectionner l'option de sauvegarde, puis choisir le nom et l'emplacement du fichier CSV.",
-        "captures/export_csv.png")
+        ajouter_section("5. Graphique à barres", "Le graphique à barres permet d'observer la répartition d'un certain type de victime à travers les mois d'une année.\n\n"
+        "Sélectionnez une année et un type de victime dans les menu déroulant. Chaque barre représente le nombre de victime dans un mois de l'année sélectionnée.",
+        ["barres.png"])
 
-        ajouter_section("6. Enregistrer un graphique en PNG", "Une fonctionnalité d'exportation permettra de sauvegarder le graphique affiché sous forme d'image PNG.\n\n"
-        "Vous pourrez ainsi réutiliser les graphiques dans des présentations, des rapports ou d'autres documents. Cette fonctionnalité reste à implémenter.",
-        "captures/export_png.png")
+        ajouter_section("6. Exporter les données en CSV", "L'objectif de cette fonctionnalité est de permettre l'enregistrement des données représentées dans le graphique.\n\n"
+        "Vous pouvez utiliser le menu « Fichier », sélectionner l'option Sauvegarder Données, puis choisir le nom et l'emplacement du fichier CSV.",
+        ["export_csv1.png","export_csv2.png"])
+
+        ajouter_section("7. Enregistrer un graphique en PNG", "Une fonctionnalité d'exportation permet de sauvegarder le graphique affiché sous forme d'image PNG.\n\n"
+        "Vous pourrez ainsi réutiliser le graphique dans des présentations, des rapports ou d'autres documents. Sélectionner l'option Sauvegarder Graphique, puis choisir le nom et l'emplacement du fichier PNG.",
+        ["export_png1.png", "export_png2.png"])
 
 
     def creer_page_graphiques(self):
@@ -651,7 +656,7 @@ class MainApplication(ctk.CTk):
         graphiques_menu.add_command(label="Évolution annuelle", command=lambda: self.afficher_page(self.page_graphiques))
 
         # Pie graph
-        graphiques_menu.add_command(label="Pie graph", command=lambda: self.afficher_page(self.page_pie))
+        graphiques_menu.add_command(label="Graphique circulaire", command=lambda: self.afficher_page(self.page_pie))
 
         # Graphique à barres
         graphiques_menu.add_command(label="Graphique à barres", command=lambda: self.afficher_page(self.page_barres))
