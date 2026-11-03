@@ -18,7 +18,8 @@ class Aide(ctk.CTkFrame):
         # Zone défilable
         zone_aide = ctk.CTkScrollableFrame(self, fg_color="white", corner_radius=0)
         zone_aide.grid(row=0, column=0, sticky="nsew")
-
+        #Vitesse du scroll
+        zone_aide._parent_canvas.configure(yscrollincrement=4)
         # Conteneur principal
         conteneur = ctk.CTkFrame(zone_aide, fg_color="transparent")
         conteneur.pack(fill="both", padx=60, pady=30)

@@ -44,7 +44,7 @@ class MainApplication(ctk.CTk):
         self.afficher_page(self.page_accueil)
 
     def creer_accueil(self):
-        # Pour que l'accueil s'adapte à la fenêtre
+        # Pour que l'accueil s'adapte à la taille de la fenêtre
         self.page_accueil.grid_columnconfigure(0, weight=1)
         self.page_accueil.grid_rowconfigure(0, weight=4)
         self.page_accueil.grid_rowconfigure(2, weight=3)
