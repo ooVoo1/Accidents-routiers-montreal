@@ -35,7 +35,7 @@ class Barres(ctk.CTkFrame):
         TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.05, anchor="center")
 
         # Création du déuxieme bouton dropdown (types de victimes).
-        menuDeroulantGraphique2 = ctk.CTkOptionMenu(self, variable=self.selection_type, values=options_type, command=lambda val:self.barres_graphe.update_bar(self.selection_annees_bar.get(), self.selection_type.get()), font=("Arial", 13), corner_radius=8, height=36)
+        menuDeroulantGraphique2 = ctk.CTkOptionMenu(self, variable=self.selection_type, values=options_type, command=lambda val:self.barres_graphe.update_bar(self.selection_annees_bar.get(), self.selection_type.get(),self.texte_stats), font=("Arial", 13), corner_radius=8, height=36)
         menuDeroulantGraphique2.place(relx=0.025, rely=0.25, anchor="nw", relwidth=0.2)
 
         # Titre du bouton 2.
