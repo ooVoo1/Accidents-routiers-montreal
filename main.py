@@ -183,8 +183,8 @@ class MainApplication(ctk.CTk):
     def charger_et_actualiser(self):
         if self.handler.charger_csv():
             self.page_graphiques.graph.update_graph(self.page_graphiques.selection.get(), self.page_graphiques.texte_stats)
-            self.page_pie.pie_graph.update_pie(self.page_pie.selection_annees.get())
-            self.page_barres.barres_graphe.update_bar(self.page_barres.selection_annees_bar.get(),self.page_barres.selection_type.get())
+            self.page_pie.pie_graph.update_pie(self.page_pie.selection_annees.get(), self.page_pie.texte_stats)
+            self.page_barres.barres_graphe.update_bar(self.page_barres.selection_annees_bar.get(),self.page_barres.selection_type.get(),self.page_barres.texte_stats)
         
     def create_menu(self):
         self.menu_principal = tk.Menu(self)
