@@ -9,7 +9,7 @@ class DataHandler():
     def __init__(self):
         self.df = pd.DataFrame() # DataFrame initialement vide.
         self.df_resultats = pd.DataFrame() # Dataframe pour l'exportation des données
-        self.graph_resultat = Figure() # Graphique pour l'exportation des données
+        self.graph_resultat = None # Graphique pour l'exportation des données
 
     def charger_csv(self):
         """Charger les données."""
@@ -23,23 +23,51 @@ class DataHandler():
 
         # Gestion d'erreurs pour les fichiers qu'on charge.
         try:
-            # Lire le fichier .csv avec la fonction de pandas qui permet de faire ça.
-            # Cela doit automatiquement créer un dataframe avec les données du fichier csv.
-            self.df = pd.read_csv(chemin)
+            df_temporaire = pd.read_csv(chemin)
+
+            # Vérifier si le fichier est vide
+            if df_temporaire.empty:
+                raise ValueError("Le fichier CSV est vide.")
+
+            # Liste des colonnes nécessaires au fonctionnement de l'application
+            colonnes_obligatoires = ["AN", "DT_ACCDN", "GRAVITE", "NB_MORTS", "NB_BLESSES_GRAVES", "NB_BLESSES_LEGERS", 
+            "NB_VICTIMES_TOTAL", "NB_VICTIMES_PIETON", "NB_VICTIMES_MOTO", "NB_VICTIMES_VELO"]
+
+            # Trouver les colonnes manquantes
+            colonnes_manquantes = []
+
+            for colonne in colonnes_obligatoires:
+                if colonne not in df_temporaire.columns:
+                    colonnes_manquantes.append(colonne)
+
+            # Refuser le fichier s'il manque des colonnes
+            if colonnes_manquantes:
+                raise ValueError("Le fichier CSV ne contient pas toutes les colonnes requises.\n\n"
+                "Colonnes manquantes :\n"+ "\n".join(colonnes_manquantes))
+
+            # Accepter le fichier seulement après avoir checké si on as toutes les colonnes
+            self.df = df_temporaire
+            self.chemin_courante = chemin
+
+            # Réinitialiser les anciens résultats
+            self.df_resultats = pd.DataFrame()
 
             print("Données chargées!")
             return True
 
-        except Exception as erreur: 
-            messagebox.showerror("Erreur", str(erreur))
+        except Exception as erreur:
+            messagebox.showerror("Erreur de chargement",str(erreur))
             return False
 
     def sauvegarder_fichier(self, file_type):
         """Sauvegarder des fichiers."""
-        
-        # Si le DataFrame de résultats est vide, afficher un erreur.
-        if self.df_resultats.empty:
+
+        if file_type == "csv" and self.df_resultats.empty:
             messagebox.showwarning("Alerte", "Aucune donnée à exporter.")
+            return
+
+        if file_type == "png" and self.graph_resultat is None:
+            messagebox.showwarning("Alerte", "Aucun graphique à exporter.")
             return
 
         # Extension du fichier en lowercase.
@@ -51,7 +79,7 @@ class DataHandler():
             filetypes=[
                 (f"Fichiers {file_type.upper()}", f"*.{extension}")
             ],
-            defaultextension=extension
+            defaultextension=f".{extension}"
         )
 
         # Si l'utilisateur annule le cours d'enregistrement, retourner rien.
