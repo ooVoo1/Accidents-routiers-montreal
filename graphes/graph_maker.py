@@ -55,8 +55,6 @@ class GraphMaker(ctk.CTkFrame):
         if self.handler.df.empty:
             return
 
-        print(f"L'utilisateur a cliqué sur : {choix}")
-
         #Dico d'équivalence pour les noms de colonnes du DataFrame
         colonnes = {"Nombre de morts": "NB_MORTS","Nombre de blessés graves": "NB_BLESSES_GRAVES",
         "Nombre de blessés légers": "NB_BLESSES_LEGERS","Nombre total de victimes": "NB_VICTIMES_TOTAL",
