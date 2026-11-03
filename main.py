@@ -179,6 +179,17 @@ class MainApplication(ctk.CTk):
             self.config(menu="")
         else:
             self.config(menu=self.menu_principal)
+        # Choisir le bon graphique graphique à exporter
+        if page == self.page_graphiques:
+            self.handler.graph_resultat = self.page_graphiques.graph.figure
+
+        elif page == self.page_pie:
+            self.handler.graph_resultat = self.page_pie.pie_graph.figure
+
+        elif page == self.page_barres:
+            self.handler.graph_resultat = self.page_barres.barres_graphe.figure
+        else:
+            self.handler.graph_resultat = None
             
     def charger_et_actualiser(self):
         if self.handler.charger_csv():

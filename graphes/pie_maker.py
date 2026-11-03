@@ -1,5 +1,5 @@
 import customtkinter as ctk
-
+from tkinter import messagebox
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -29,10 +29,7 @@ class PieMaker(ctk.CTkFrame):
         #le nom du graphique
         self.ax.set_title(f"Gravité des accidents en {titre}", fontdict={"fontsize": 14, "weight": "bold"})
 
-        #afficher les categories sous forme de  legende
-        self.ax.legend(row,title = "Catégories", loc ="lower right", bbox_to_anchor=(1.05, 0.03), fontsize=10)
-
-        #,bbox_to_anchor=(1, 0, 0.5, 1)
+        #afficher les categories sous forme de  legende        self.ax.legend(row,title = "Catégories", loc ="lower right", bbox_to_anchor=(1.05, 0.03), fontsize=10)
 
         #pour l'affichage du cercle pour qu'il reste un cercle
         self.ax.axis('equal')
@@ -45,12 +42,16 @@ class PieMaker(ctk.CTkFrame):
         if self.handler.df.empty:
             return
 
+        
         # Choix d'année. 
         annee = int(choix)
 
         df_annee = self.handler.df[self.handler.df['AN'] == annee]
         resultat = df_annee.groupby("GRAVITE").size()
-
+        #Ne pas faire de graphique si il n'y a pas d'accidents dans l'année
+        if resultat.empty or resultat.sum() == 0:
+            messagebox.showwarning("Aucune donnée", "Aucune collision enregistrée pour cette année.")
+            return
         #df_perc = resultat.replace({x: round((100 * x) / sum(resultat.values), 1) for x in resultat.values})
         #self.handler.df_resultats = df_perc.reset_index(name=f"Pourcentage des valeurs en {annee}")
 
