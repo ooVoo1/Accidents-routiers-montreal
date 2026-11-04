@@ -66,13 +66,13 @@ class PieMaker(ctk.CTkFrame):
         total_grave = resultat["Grave"].sum()
         total_mortel = resultat["Mortel"].sum()
 
-        texte = (f"Total de cette année: {int(total)}\n\n"
-                       f"Total de dommage matériels inférieurs au seuil de rapportage: {int(total_dommage_inferieur)}\n\n"
-                       f"Total de dommage matériels seulement: {int(total_materiel)}\n\n"
-                       f"Total d'accident léger: {int(total_leger)}\n\n"
-                       f"Total d'accident grave: {int(total_grave)}\n\n"
-                       f"Total d'accident mortel: {int(total_mortel)}\n\n"
-                       )
+        texte = (f"Total des collisions : {int(total)}\n\n"
+            f"Dommages sous le seuil : {int(total_dommage_inferieur)}\n\n"
+            f"Dommages matériels : {int(total_materiel)}\n\n"
+            f"Accidents légers : {int(total_leger)}\n\n"
+            f"Accidents graves : {int(total_grave)}\n\n"
+            f"Accidents mortels : {int(total_mortel)}")
+
         texte_stats.configure(text=texte)
 
         self.create_graph(row, columns, annee)

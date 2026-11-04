@@ -100,7 +100,7 @@ class BarMaker(ctk.CTkFrame):
             mois_record = accident_df[choix2].idxmax()
 
             texte = (f"Total d'accident: {int(total_accident)}\n\n"
-                     f"mois record: {str(mois_record)}"            
+                     f"Mois record: {str(mois_record)}"            
                     )
         
             texte_stats.configure(text=texte)
