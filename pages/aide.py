@@ -18,8 +18,10 @@ class Aide(ctk.CTkFrame):
         # Zone défilable
         zone_aide = ctk.CTkScrollableFrame(self, fg_color="white", corner_radius=0)
         zone_aide.grid(row=0, column=0, sticky="nsew")
+        
         #Vitesse du scroll
         zone_aide._parent_canvas.configure(yscrollincrement=4)
+
         # Conteneur principal
         conteneur = ctk.CTkFrame(zone_aide, fg_color="transparent")
         conteneur.pack(fill="both", padx=60, pady=30)
@@ -27,6 +29,7 @@ class Aide(ctk.CTkFrame):
         # Titre de la page
         titre = ctk.CTkLabel(conteneur, text="Page d'aide RouteSûre", font=("Arial", 30, "bold"), text_color="#133E70")
         titre.pack(pady=(0, 12))
+        
         #texte d'accueil
         introduction = ctk.CTkLabel(conteneur, text="Découvrez comment importer, visualiser et analyser les données des collisions routières de Montréal.", font=("Arial", 15), text_color="#64748B", wraplength=850)
         introduction.pack(pady=(0, 25))
