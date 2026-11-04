@@ -192,12 +192,23 @@ class MainApplication(ctk.CTk):
             self.config(menu="")
         else:
             self.config(menu=self.menu_principal)
+        # Choisir le bon graphique graphique à exporter
+        if page == self.page_graphiques:
+            self.handler.graph_resultat = self.page_graphiques.graph.figure
+
+        elif page == self.page_pie:
+            self.handler.graph_resultat = self.page_pie.pie_graph.figure
+
+        elif page == self.page_barres:
+            self.handler.graph_resultat = self.page_barres.barres_graphe.figure
+        else:
+            self.handler.graph_resultat = None
             
     def charger_et_actualiser(self):
         if self.handler.charger_csv():
             self.page_graphiques.graph.update_graph(self.page_graphiques.selection.get(), self.page_graphiques.texte_stats)
-            self.page_pie.pie_graph.update_pie(self.page_pie.selection_annees.get())
-            self.page_barres.barres_graphe.update_bar(self.page_barres.selection_annees_bar.get(),self.page_barres.selection_type.get())
+            self.page_pie.pie_graph.update_pie(self.page_pie.selection_annees.get(), self.page_pie.texte_stats)
+            self.page_barres.barres_graphe.update_bar(self.page_barres.selection_annees_bar.get(),self.page_barres.selection_type.get(),self.page_barres.texte_stats)
         
     def create_menu(self):
         self.menu_principal = tk.Menu(self)

@@ -34,7 +34,7 @@ class BarMaker(ctk.CTkFrame):
         self.figure.tight_layout()
         self.canvas.draw_idle()
 
-    def update_bar(self, choix, choix2):
+    def update_bar(self, choix, choix2, texte_stats):
         # Si le DataFrame est vide, retourner rien.
         if self.handler.df.empty:
             return
@@ -57,21 +57,55 @@ class BarMaker(ctk.CTkFrame):
         df_annee_bar['mois'] = pd.to_datetime(df_annee_bar["DT_ACCDN"], errors="coerce").dt.month
         data_dict = {}
 
+      
+
+        # si l'option tout
         if choix2 == "Tout":
             for row, col in colonnes.items():
                 if col in df_annee_bar.columns:
                     data_dict[row] = df_annee_bar.groupby('mois')[col].sum()
 
             #Récupérer mois de chaque accident
-            pivot_df = pd.DataFrame(data_dict)
-            pivot_df = pivot_df.reindex(range(1, 13), fill_value=0)
-            pivot_df.index = noms_mois
+            accident_df = pd.DataFrame(data_dict)
+            accident_df = accident_df.reindex(range(1, 13), fill_value=0)
+            accident_df.index = noms_mois
+
+            nb_mort = accident_df["Nombre de morts"].sum()
+            nb_grave = accident_df["Nombre de blessés graves"].sum()
+            nb_leger = accident_df["Nombre de blessés légers"].sum()
+            nb_victime = accident_df[ "Nombre total de victimes"].sum()
+            nb_pieton = accident_df["Nombre de victimes piétons"].sum()
+            nb_moto = accident_df["Nombre de victimes moto"].sum()
+            nb_velo = accident_df["Nombre de victimes vélo"].sum()
+           
+
+            texte = (f"Total d'accident léger: {int(nb_leger)}\n\n"
+                        f"Total d'accidents grave: {int(nb_grave)}\n\n"
+                        f"Total de morts: {int(nb_mort)}\n\n"
+                        f"Total de victimes: {int(nb_victime)}\n\n"
+                        f"Total de victimes piétonniaires: {int(nb_pieton)}\n\n"
+                        f"Total de victimes à moto: {int(nb_moto)}\n\n"
+                        f"Total de victimes à vélo: {int(nb_velo)}"
+                        )
+            texte_stats.configure(text=texte)
 
         else:
             serie_resultat = df_annee_bar.groupby('mois')[colonnes[choix2]].sum()
-            pivot_df = pd.DataFrame({choix2: serie_resultat})
-            pivot_df = pivot_df.reindex(range(1, 13), fill_value=0)
-            pivot_df.index = noms_mois
+            accident_df = pd.DataFrame({choix2: serie_resultat})
+            accident_df = accident_df.reindex(range(1, 13), fill_value=0)
+            accident_df.index = noms_mois
 
-        self.create_graph(pivot_df)
+
+            total_accident = accident_df[choix2].sum()
+            mois_record = accident_df[choix2].idxmax()
+
+            texte = (f"Total d'accident: {int(total_accident)}\n\n"
+                     f"mois record: {str(mois_record)}"            
+                    )
+        
+            texte_stats.configure(text=texte)
+
+
+
+        self.create_graph(accident_df)
         

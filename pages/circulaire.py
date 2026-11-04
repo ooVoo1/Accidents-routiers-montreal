@@ -29,3 +29,15 @@ class Circulaire(ctk.CTkFrame):
         TitreMenuDeroulantGraphique = ctk.CTkLabel(self, text="Année", font=("Arial", 16, "bold"), text_color="black", fg_color="transparent")
         TitreMenuDeroulantGraphique.place(relx=0.125, rely=0.05, anchor="center")
 
+        # Encadré des statistiques
+        self.stats_frame = ctk.CTkFrame(self, fg_color="white", border_width=1, border_color="#D9DEE5", corner_radius=12)
+        self.stats_frame.place(relx=0.025, rely=0.5, anchor="nw", relwidth=0.3, relheight=0.35)
+
+        # Titre de l'encadré
+        self.titre_stats = ctk.CTkLabel(self.stats_frame, text="Résumé statistique", font=("Arial", 20, "bold"), text_color="black")
+        self.titre_stats.pack(pady=(12, 8))
+
+        # Texte des statistiques
+        self.texte_stats = ctk.CTkLabel(self.stats_frame, text="Chargez un fichier CSV", font=("Arial", 18), text_color="black", justify="left", anchor="w")
+        self.texte_stats.pack(fill="x", padx=12, pady=8)
+
