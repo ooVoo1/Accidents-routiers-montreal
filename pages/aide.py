@@ -2,6 +2,7 @@ import customtkinter as ctk
 import os
 
 from PIL import Image
+from datahandler import DataHandler
 
 class Aide(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -10,6 +11,8 @@ class Aide(ctk.CTkFrame):
         # Pour que la page remplisse la fenetre
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+
+        self.handler = DataHandler()
 
         # Créer la page d'aide.
         self.creer_page_aide()
@@ -54,8 +57,8 @@ class Aide(ctk.CTkFrame):
             # Ajouter des screenshots pour aider plus =)
             if captures:
                 for capture in captures:
-                    if os.path.exists("images/" + capture):
-                        image = Image.open("images/" + capture)
+                    if os.path.exists(self.handler.resource_path("images/" + capture)):
+                        image = Image.open(self.handler.resource_path("images/" + capture))
 
                         # Mettre à la bonne taille
                         largeur = min(image.width, 750)
