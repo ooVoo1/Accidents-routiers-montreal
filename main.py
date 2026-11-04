@@ -10,19 +10,6 @@ from pages.circulaire import Circulaire
 from pages.graphique import Graphique
 from pages.barres import Barres
 
-import os
-import sys
-
-def resource_path(relative_path):
-    try:
-        # Dossier temporaire créé par PyInstaller
-        base_path = sys._MEIPASS
-    except AttributeError:
-        # Exécution normale du script Python
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
-
 class MainApplication(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -68,7 +55,7 @@ class MainApplication(ctk.CTk):
         place_logo.grid(row=0, column=0, sticky="nsew")
 
         # Loader et recadrer le logo
-        image = Image.open(resource_path("images/logo_routesure.png"))
+        image = Image.open(self.handler.resource_path("images/logo_routesure.png"))
         largeur, hauteur = image.size
         image = image.crop((0, int(hauteur * 0.22), largeur, int(hauteur * 0.78)))
 
@@ -125,7 +112,7 @@ class MainApplication(ctk.CTk):
             contenu.pack(expand=True)
 
             #Mettre icone du bouton
-            icone = ctk.CTkImage(light_image=Image.open(resource_path("images/" + icones[i])), size=(48, 48))
+            icone = ctk.CTkImage(light_image=Image.open(self.handler.resource_path("images/" + icones[i])), size=(48, 48))
             self.icones_accueil.append(icone)
             image_gros_bouton = ctk.CTkLabel(contenu, image=icone, text="")
             image_gros_bouton.pack(pady=(0, 12))
@@ -151,7 +138,7 @@ class MainApplication(ctk.CTk):
         ligne_boutons.pack(expand=True)
 
         # image de fichier pour bouton charger
-        self.icone_charger = ctk.CTkImage(light_image=Image.open(resource_path("images/icone_charger.png")), size=(24, 24))
+        self.icone_charger = ctk.CTkImage(light_image=Image.open(self.handler.resource_path("images/icone_charger.png")), size=(24, 24))
 
         # bouton charger CSV
         bouton_charger = ctk.CTkButton(ligne_boutons, text="Charger des données CSV", image=self.icone_charger, compound="left",
@@ -160,7 +147,7 @@ class MainApplication(ctk.CTk):
         bouton_charger.pack(side="left", padx=8)
 
         # image de "?" pour le bouton aide
-        self.icone_aide = ctk.CTkImage(light_image=Image.open(resource_path("images/icone_aide.png")), size=(22, 22))
+        self.icone_aide = ctk.CTkImage(light_image=Image.open(self.handler.resource_path("images/icone_aide.png")), size=(22, 22))
 
         # bouton aide
         bouton_aide = ctk.CTkButton(ligne_boutons, text="Aide", image=self.icone_aide, compound="left", command=lambda: self.afficher_page(self.page_aide),
