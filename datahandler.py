@@ -1,7 +1,9 @@
 import pandas as pd
 
 from tkinter import filedialog, messagebox
-from matplotlib.figure import Figure
+
+import os
+import sys
 
 class DataHandler():
     """Fait la gestion des fichiers et du DataFrame."""
@@ -120,3 +122,13 @@ class DataHandler():
 
         # Sauvegarder un image du graphique en ficher png.
         self.sauvegarder_avec_gestion_erreur(lambda path: self.graph_resultat.savefig(path), "png", "Graphique enregistrée!")
+
+    def resource_path(self, relative_path):
+        try:
+            # Dossier temporaire créé par PyInstaller
+            base_path = sys._MEIPASS
+        except AttributeError:
+            # Exécution normale du script Python
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
