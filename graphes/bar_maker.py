@@ -57,8 +57,6 @@ class BarMaker(ctk.CTkFrame):
         df_annee_bar['mois'] = pd.to_datetime(df_annee_bar["DT_ACCDN"], errors="coerce").dt.month
         data_dict = {}
 
-      
-
         # si l'option tout
         if choix2 == "Tout":
             for row, col in colonnes.items():
@@ -69,6 +67,9 @@ class BarMaker(ctk.CTkFrame):
             accident_df = pd.DataFrame(data_dict)
             accident_df = accident_df.reindex(range(1, 13), fill_value=0)
             accident_df.index = noms_mois
+
+            # Données destinées à l'exportation CSV
+            self.handler.df_resultats = accident_df.reset_index(names=f"Mois de l'année {choix}")
 
             nb_mort = accident_df["Nombre de morts"].sum()
             nb_grave = accident_df["Nombre de blessés graves"].sum()
@@ -87,14 +88,18 @@ class BarMaker(ctk.CTkFrame):
                         f"Total de victimes à moto: {int(nb_moto)}\n\n"
                         f"Total de victimes à vélo: {int(nb_velo)}"
                         )
+            
             texte_stats.configure(text=texte)
 
         else:
             serie_resultat = df_annee_bar.groupby('mois')[colonnes[choix2]].sum()
+
             accident_df = pd.DataFrame({choix2: serie_resultat})
             accident_df = accident_df.reindex(range(1, 13), fill_value=0)
             accident_df.index = noms_mois
 
+            # Données destinées à l'exportation CSV
+            self.handler.df_resultats = accident_df.reset_index(names=f"Mois de l'année {choix}")
 
             total_accident = accident_df[choix2].sum()
             mois_record = accident_df[choix2].idxmax()
@@ -105,7 +110,6 @@ class BarMaker(ctk.CTkFrame):
         
             texte_stats.configure(text=texte)
 
-
-
         self.create_graph(accident_df)
+        self.handler.graph_resultat = self.figure
         

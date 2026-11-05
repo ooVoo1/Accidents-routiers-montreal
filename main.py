@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import tkinter as tk
+import pandas as pd
 
 from PIL import Image
 
@@ -38,6 +39,8 @@ class MainApplication(ctk.CTk):
         self.page_aide.grid(row=0, column=0, sticky="nsew")
         self.page_pie.grid(row=0, column=0, sticky="nsew")
         self.page_barres.grid(row=0, column=0, sticky="nsew")
+
+        self.page_actuelle = self.page_accueil
 
         #Création page accueil
         self.creer_accueil()
@@ -175,27 +178,49 @@ class MainApplication(ctk.CTk):
         # Afficher la page sélectionnée
         page.tkraise()
 
+        # Changer la page actuelle et actualiser cette page.
+        self.page_actuelle = page
+        self.actualiser_page_active()
+
         if page == self.page_accueil:
             self.config(menu="")
         else:
             self.config(menu=self.menu_principal)
-        # Choisir le bon graphique graphique à exporter
-        if page == self.page_graphiques:
-            self.handler.graph_resultat = self.page_graphiques.graph.figure
 
-        elif page == self.page_pie:
-            self.handler.graph_resultat = self.page_pie.pie_graph.figure
+    def actualiser_page_active(self):
+        self.handler.df_resultats = pd.DataFrame()
+        self.handler.graph_resultat = None
 
-        elif page == self.page_barres:
-            self.handler.graph_resultat = self.page_barres.barres_graphe.figure
-        else:
-            self.handler.graph_resultat = None
-            
+        if self.handler.df.empty:
+            return
+
+        if self.page_actuelle == self.page_graphiques:
+            self.page_graphiques.graph.update_graph(
+                self.page_graphiques.selection.get(),
+                self.page_graphiques.texte_stats
+            )
+
+        elif self.page_actuelle == self.page_pie:
+            self.page_pie.pie_graph.update_pie(
+                self.page_pie.selection_annees.get(),
+                self.page_pie.texte_stats
+            )
+
+        elif self.page_actuelle == self.page_barres:
+            self.page_barres.barres_graphe.update_bar(
+                self.page_barres.selection_annees_bar.get(),
+                self.page_barres.selection_type.get(),
+                self.page_barres.texte_stats
+            )
+                
     def charger_et_actualiser(self):
         if self.handler.charger_csv():
             self.page_graphiques.graph.update_graph(self.page_graphiques.selection.get(), self.page_graphiques.texte_stats)
             self.page_pie.pie_graph.update_pie(self.page_pie.selection_annees.get(), self.page_pie.texte_stats)
             self.page_barres.barres_graphe.update_bar(self.page_barres.selection_annees_bar.get(),self.page_barres.selection_type.get(),self.page_barres.texte_stats)
+
+        # Actualiser un autre fois pour assurer que les données viennent de la page courante.
+        self.actualiser_page_active()
         
     def create_menu(self):
         self.menu_principal = tk.Menu(self)

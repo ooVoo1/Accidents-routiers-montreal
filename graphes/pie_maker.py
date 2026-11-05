@@ -1,4 +1,5 @@
 import customtkinter as ctk
+
 from tkinter import messagebox
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -53,8 +54,9 @@ class PieMaker(ctk.CTkFrame):
         if resultat.empty or resultat.sum() == 0:
             messagebox.showwarning("Aucune donnée", "Aucune collision enregistrée pour cette année.")
             return
-        #df_perc = resultat.replace({x: round((100 * x) / sum(resultat.values), 1) for x in resultat.values})
-        #self.handler.df_resultats = df_perc.reset_index(name=f"Pourcentage des valeurs en {annee}")
+        
+        df_perc = resultat.replace({x: round((100 * x) / sum(resultat.values), 1) for x in resultat.values})
+        self.handler.df_resultats = df_perc.reset_index(name=f"Pourcentage des valeurs en {annee}")
 
         row = list(resultat.index)
         columns = list(resultat.values)
@@ -76,3 +78,4 @@ class PieMaker(ctk.CTkFrame):
         texte_stats.configure(text=texte)
 
         self.create_graph(row, columns, annee)
+        self.handler.graph_resultat = self.figure

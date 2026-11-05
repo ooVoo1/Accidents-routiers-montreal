@@ -20,6 +20,7 @@ class GraphMaker(ctk.CTkFrame):
 
         # DataHandler
         self.handler = handler
+        self.graphe_df = pd.DataFrame()
 
     def create_graph(self, x, y, titre, label_y):
         # Effacer ancien graphique
@@ -71,6 +72,7 @@ class GraphMaker(ctk.CTkFrame):
         # Garder les résultats pour en cas d'exportation
         self.handler.df_resultats = resultats.reset_index(name=choix)
 
+        # Créer à nouveau le graphique avec les nouvelles données
         self.create_graph(x=resultats.index, y=resultats.values, titre=choix + " par année", label_y=choix)
 
         #Récupération de données pour statsbox
