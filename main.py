@@ -157,6 +157,8 @@ class MainApplication(ctk.CTk):
         bouton_aide.pack(side="left", padx=8)
 
     def afficher_page(self, page):
+        # Mettre la page active dans la mémoire
+        self.page_active = page
         pages = (
             self.page_accueil,
             self.page_graphiques,
@@ -196,6 +198,8 @@ class MainApplication(ctk.CTk):
             self.page_graphiques.graph.update_graph(self.page_graphiques.selection.get(), self.page_graphiques.texte_stats)
             self.page_pie.pie_graph.update_pie(self.page_pie.selection_annees.get(), self.page_pie.texte_stats)
             self.page_barres.barres_graphe.update_bar(self.page_barres.selection_annees_bar.get(),self.page_barres.selection_type.get(),self.page_barres.texte_stats)
+        # Associer le graphique pour export png à la page active
+        self.afficher_page(self.page_active)
         
     def create_menu(self):
         self.menu_principal = tk.Menu(self)
