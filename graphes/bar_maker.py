@@ -41,6 +41,7 @@ class BarMaker(ctk.CTkFrame):
         
         annee = int(choix)
 
+       #pour avoir la bonne année
         df_annee_bar = self.handler.df[self.handler.df['AN'].astype(int) == annee]
         noms_mois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
 
@@ -54,6 +55,7 @@ class BarMaker(ctk.CTkFrame):
             "Nombre de victimes vélo": "NB_VICTIMES_VELO"
         }
 
+        #pour ajouter une colonne de mois
         df_annee_bar['mois'] = pd.to_datetime(df_annee_bar["DT_ACCDN"], errors="coerce").dt.month
         data_dict = {}
 
@@ -61,15 +63,17 @@ class BarMaker(ctk.CTkFrame):
 
         # si l'option tout
         if choix2 == "Tout":
+            #créer un dataframe meilleur pour un graphique à barres
             for row, col in colonnes.items():
                 if col in df_annee_bar.columns:
                     data_dict[row] = df_annee_bar.groupby('mois')[col].sum()
 
-            #Récupérer mois de chaque accident
+            
             accident_df = pd.DataFrame(data_dict)
             accident_df = accident_df.reindex(range(1, 13), fill_value=0)
             accident_df.index = noms_mois
 
+            #pour avoir le total pour chaque mois pour le texte des statistiques
             nb_mort = accident_df["Nombre de morts"].sum()
             nb_grave = accident_df["Nombre de blessés graves"].sum()
             nb_leger = accident_df["Nombre de blessés légers"].sum()
@@ -78,7 +82,7 @@ class BarMaker(ctk.CTkFrame):
             nb_moto = accident_df["Nombre de victimes moto"].sum()
             nb_velo = accident_df["Nombre de victimes vélo"].sum()
            
-
+            
             texte = (f"Total d'accident léger: {int(nb_leger)}\n\n"
                         f"Total d'accidents grave: {int(nb_grave)}\n\n"
                         f"Total de morts: {int(nb_mort)}\n\n"
@@ -90,22 +94,22 @@ class BarMaker(ctk.CTkFrame):
             texte_stats.configure(text=texte)
 
         else:
+            #si il veut juste 1 type de victime au lieu de tout
             serie_resultat = df_annee_bar.groupby('mois')[colonnes[choix2]].sum()
             accident_df = pd.DataFrame({choix2: serie_resultat})
             accident_df = accident_df.reindex(range(1, 13), fill_value=0)
             accident_df.index = noms_mois
 
-
+            #pour le texte pour afficher les statistiques
             total_accident = accident_df[choix2].sum()
             mois_record = accident_df[choix2].idxmax()
 
             texte = (f"Total d'accident: {int(total_accident)}\n\n"
-                     f"Mois record: {str(mois_record)}"            
+                     f"mois record: {str(mois_record)}"            
                     )
         
             texte_stats.configure(text=texte)
 
-
-
+    
         self.create_graph(accident_df)
         
