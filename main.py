@@ -160,6 +160,8 @@ class MainApplication(ctk.CTk):
         bouton_aide.pack(side="left", padx=8)
 
     def afficher_page(self, page):
+        # Mettre la page active dans la mémoire
+        self.page_active = page
         pages = (
             self.page_accueil,
             self.page_graphiques,

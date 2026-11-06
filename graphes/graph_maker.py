@@ -1,6 +1,6 @@
 import customtkinter as ctk
 import pandas as pd
-
+from tkinter import messagebox
 from matplotlib.figure import Figure
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -89,10 +89,16 @@ class GraphMaker(ctk.CTkFrame):
             resultats_mois = self.handler.df.groupby(mois).size()
         else:
             resultats_mois = self.handler.df.groupby(mois)[colonne].sum()
+        if resultats.empty:
+            messagebox.showwarning("Aucune donnée","Aucune année valide dans le fichier.")
+            return
 
-        #Assigner meilleur mois
-        numero_mois = int(resultats_mois.idxmax())
-        mois_record = noms_mois[numero_mois - 1]
+        #Assigner meilleur mois et gérer le cas ou ya rien dans la variable
+        if resultats_mois.empty:
+            mois_record = "Indisponible"
+        else:
+            numero_mois = int(resultats_mois.idxmax())
+            mois_record = noms_mois[numero_mois - 1]
 
         #Créer texte pour statsbox
         texte = (f"Total : {int(total)}\n\n"

@@ -49,6 +49,7 @@ class PieMaker(ctk.CTkFrame):
         annee = int(choix)
 
         df_annee = self.handler.df[self.handler.df['AN'] == annee]
+        #pour grouper la gravité de l'accident à son totale
         resultat = df_annee.groupby("GRAVITE").size()
           #Ne pas faire de graphique si il n'y a pas d'accidents dans l'année
         if resultat.empty or resultat.sum() == 0:
@@ -58,9 +59,11 @@ class PieMaker(ctk.CTkFrame):
         df_perc = resultat.replace({x: round((100 * x) / sum(resultat.values), 1) for x in resultat.values})
         self.handler.df_resultats = df_perc.reset_index(name=f"Pourcentage des valeurs en {annee}")
 
+        #pour faire 2 listes pour la gravité et son total
         row = list(resultat.index)
         columns = list(resultat.values)
 
+        #pour les statistiques qui s'afficheront
         total = resultat.sum()
         total_dommage_inferieur = resultat["Dommages matériels inférieurs au seuil de rapportage"].sum()
         total_materiel = resultat["Dommages matériels seulement"].sum()
@@ -68,13 +71,13 @@ class PieMaker(ctk.CTkFrame):
         total_grave = resultat["Grave"].sum()
         total_mortel = resultat["Mortel"].sum()
 
-        texte = (f"Total de cette année: {int(total)}\n\n"
-                       f"Total de dommage matériels inférieurs au seuil de rapportage: {int(total_dommage_inferieur)}\n\n"
-                       f"Total de dommage matériels seulement: {int(total_materiel)}\n\n"
-                       f"Total d'accident léger: {int(total_leger)}\n\n"
-                       f"Total d'accident grave: {int(total_grave)}\n\n"
-                       f"Total d'accident mortel: {int(total_mortel)}\n\n"
-                       )
+        texte = (f"Total des collisions : {int(total)}\n\n"
+            f"Dommages sous le seuil : {int(total_dommage_inferieur)}\n\n"
+            f"Dommages matériels : {int(total_materiel)}\n\n"
+            f"Accidents légers : {int(total_leger)}\n\n"
+            f"Accidents graves : {int(total_grave)}\n\n"
+            f"Accidents mortels : {int(total_mortel)}")
+
         texte_stats.configure(text=texte)
 
         self.create_graph(row, columns, annee)
